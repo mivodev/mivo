@@ -24,3 +24,7 @@ Thumbs.db
 # VitePress
 docs/.vitepress/dist
 docs/.vitepress/cache
+
+# Build Scripts & Artifacts
+build_release.ps1
+*.zip
