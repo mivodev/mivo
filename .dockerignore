@@ -8,3 +8,5 @@ temp_debug
 docker-compose.yml
 docs/
 app/Database/*.sqlite
+public/assets/img/logos/*
+!public/assets/img/logos/.gitignore
