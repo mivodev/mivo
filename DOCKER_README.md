@@ -6,7 +6,7 @@
 
 > **Modern. Lightweight. Efficient.**
 
-MIVO is a complete rewrite of the legendary **Mikhmon v3**, re-engineered with a modern MVC architecture to run efficiently on low-end devices like STB (Set Top Boxes) and Android, while providing a premium user experience on desktop.
+MIVO is a next-generation **Mikrotik Voucher Management System** with a modern MVC architecture, designed to run efficiently on low-end devices like STB (Set Top Boxes) and Android, while providing a premium user experience on desktop.
 
 This Docker image is built on **Alpine Linux** and **Nginx**, optimized for high performance and low resource usage.
 

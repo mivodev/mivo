@@ -30,7 +30,7 @@ features:
 
 ## Mengapa MIVO?
 
-MIVO adalah penulisan ulang total dari **Mikhmon v3** yang legendaris, direkayasa ulang untuk memecahkan masalah performa umum pada perangkat keras spesifikasi rendah.
+MIVO adalah **Sistem Manajemen Voucher Mikrotik** generasi baru, dirancang untuk memberikan pengalaman pengguna premium bahkan pada perangkat keras spesifikasi rendah.
 
 ### Sorotan Utama
 

@@ -8,7 +8,7 @@ Selamat datang di Panduan MIVO. Bagian ini akan membantu Anda memahami apa itu M
 
 ## <Icon name="Zap" color="warning" /> Apa itu MIVO?
 
-MIVO adalah sistem Manajemen Voucher Mikrotik yang modern dan ringan. MIVO merupakan penulisan ulang total dari Mikhmon v3 yang legendaris, dirancang ulang untuk performa yang lebih baik dan pengalaman pengguna yang premium.
+MIVO adalah sistem Manajemen Voucher Mikrotik yang modern dan ringan. Sistem ini dirancang agar efisien, cepat, dan mudah digunakan, memberikan pengalaman yang mulus untuk pengelolaan Hotspot.
 
 ## <Icon name="BookOpen" color="primary" /> Navigasi
 

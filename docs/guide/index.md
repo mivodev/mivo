@@ -8,7 +8,7 @@ Welcome to the MIVO Guide. This section will help you understand what MIVO is an
 
 ## <Icon name="Zap" color="warning" /> What is MIVO?
 
-MIVO is a modern, lightweight Mikrotik Voucher Management system. It's a complete rewrite of the legendary Mikhmon v3, re-engineered for better performance and a premium user experience.
+MIVO is a modern, lightweight Mikrotik Voucher Management system. It is designed to be efficient, fast, and user-friendly, providing a seamless experience for Hotspot management.
 
 ## <Icon name="BookOpen" color="primary" /> Navigation
 

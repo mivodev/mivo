@@ -30,7 +30,7 @@ features:
 
 ## Why MIVO?
 
-MIVO is a complete rewrite of the legendary **Mikhmon v3**, re-engineered to solve common performance issues on low-end hardware.
+MIVO is a next-generation **Mikrotik Voucher Management System**, engineered to deliver premium user experience even on low-end hardware.
 
 ### Key Highlights
 
