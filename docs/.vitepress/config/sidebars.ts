@@ -17,6 +17,7 @@ export const sidebarEn: DefaultTheme.Sidebar = {
       collapsed: false,
       items: [
         { text: 'Docker', link: '/guide/docker' },
+        { text: 'aaPanel (Docker)', link: '/guide/docker-aapanel' },
         { text: 'Web Server', link: '/guide/installation#web-servers' },
         { text: 'Shared Hosting', link: '/guide/installation#shared-hosting' },
         { text: 'VPS & Cloud', link: '/guide/installation#vps-cloud' },
@@ -88,6 +89,7 @@ export const sidebarId: DefaultTheme.Sidebar = {
       collapsed: false,
       items: [
         { text: 'Docker', link: '/id/guide/docker' },
+        { text: 'aaPanel (Docker)', link: '/id/guide/docker-aapanel' },
         { text: 'Web Server', link: '/id/guide/installation#web-server' },
         { text: 'Shared Hosting', link: '/id/guide/installation#shared-hosting' },
         { text: 'VPS & Cloud', link: '/id/guide/installation#vps-cloud' },

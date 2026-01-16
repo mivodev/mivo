@@ -57,6 +57,37 @@ services:
 - `edge`: Bleeding edge build from the `main` branch.
 - `v1.x.x`: Specific released versions.
 
+## Deploy on aaPanel (Advanced / Native Style)
+
+This method follows the standard aaPanel "Quick Install" pattern, using full control over paths and resources via a `.env` file.
+
+1.  **Prepare Files**:
+    *   Copy the content of [docker/aapanel-template.yml](docker/aapanel-template.yml).
+    *   Copy the content of [docker/aapanel-env.example](docker/aapanel-env.example).
+
+2.  **Add Project in aaPanel**:
+    *   Go to **Docker** -> **Project** -> **Add Project**.
+    *   **Name**: `mivo`
+    *   **Compose Template**: Paste the content of `aapanel-template.yml`.
+
+3.  **Define Configuration (.env)**:
+    *   In the sidebar or tab for **.env** (which appears after you paste the template in some versions, or you create manually):
+    *   Paste the content of `aapanel-env.example`.
+    *   **Crucial Step**: Edit `APP_PATH` to match your project path (usually `/www/dk_project/mivo`).
+    *   Adjust `APP_PORT` if needed.
+
+4.  **Confirm**: Click "Add" or "Confirm" to deploy.
+
+5.  **Setup Reverse Proxy**:
+    *   Go to **Website** -> **Add Site** -> **Reverse Proxy**.
+    *   Target: `http://127.0.0.1:8080` (Usage of variable `${APP_PORT}` matches this).
+    *   Go to **Website** -> **Add Site**.
+    *   Enter your domain name (e.g., `mivo.yourdomain.com`).
+    *   Select **Reverse Proxy** as the PHP version (or set it up manually afterwards).
+    *   After the site is created, click on it -> **Reverse Proxy** -> **Add Reverse Proxy**.
+    *   **Target URL**: `http://127.0.0.1:8080` (or the port you configured).
+    *   Save and enable SSL.
+
 ## Environment Variables
 
 | Variable | Description | Default |

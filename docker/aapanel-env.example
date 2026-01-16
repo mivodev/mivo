@@ -1,0 +1,10 @@
+VERSION=latest
+CONTAINER_NAME=mivo
+HOST_IP=0.0.0.0
+APP_PORT=8080
+APP_PATH=/www/dk_project/mivo
+APP_ENV=production
+APP_DEBUG=false
+TZ=Asia/Jakarta
+CPUS=1.0
+MEMORY_LIMIT=512M
