@@ -101,7 +101,11 @@ class Logo {
         $logoDir = ROOT . '/public/assets/img/logos/';
         if (!file_exists($logoDir)) return;
 
-        $files = glob($logoDir . '*.{jpg,jpeg,png,gif,svg}', GLOB_BRACE);
+        $files = [];
+        $extensions = ['jpg', 'jpeg', 'png', 'gif', 'svg'];
+        foreach ($extensions as $ext) {
+            $files = array_merge($files, glob($logoDir . '*.' . $ext));
+        }
         
         foreach ($files as $file) {
             $filename = basename($file);
