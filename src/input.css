@@ -1,0 +1,540 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --background: #ffffff;
+        --foreground: #000000;
+        --accents-1: #fafafa;
+        --accents-2: #eaeaea;
+        --accents-3: #999999;
+        --accents-4: #888888;
+        --accents-5: #666666;
+        --accents-6: #444444;
+        --accents-7: #333333;
+        --accents-8: #111111;
+    }
+
+    .dark {
+        --background: #000000;
+        --foreground: #ffffff;
+        --accents-1: #111111;
+        --accents-2: #333333;
+        --accents-3: #444444;
+        --accents-4: #666666;
+        --accents-5: #888888;
+        --accents-6: #999999;
+        --accents-7: #eaeaea;
+        --accents-8: #fafafa;
+    }
+
+    body {
+        @apply bg-background text-foreground font-sans antialiased;
+    }
+}
+
+@layer components {
+    .custom-select-wrapper {
+        @apply shrink-0;
+    }
+    .btn {
+        @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground disabled:pointer-events-none disabled:opacity-50 h-9 px-4 py-2 hover:shadow-md active:scale-95;
+    }
+    .btn-primary {
+        @apply bg-foreground text-background hover:opacity-90 hover:-translate-y-0.5;
+    }
+    .btn-secondary {
+        @apply bg-background text-foreground border border-accents-2 hover:bg-accents-1 hover:border-foreground hover:-translate-y-0.5;
+    }
+    .btn-danger {
+        @apply bg-red-500 text-white hover:bg-red-600 border border-transparent hover:-translate-y-0.5 hover:shadow-red-500/20;
+    }
+    .btn-icon {
+        @apply p-2 rounded-lg text-accents-5 transition-all duration-200 hover:text-foreground hover:bg-white/40 dark:hover:bg-white/10 active:scale-95;
+    }
+    .btn-icon-danger {
+        @apply p-2 rounded-lg text-red-500 transition-all duration-200 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 active:scale-95;
+    }
+    .form-label {
+        @apply block text-sm font-medium text-accents-5 mb-1 transition-colors duration-200;
+    }
+
+    .form-label-card {
+        @apply block text-sm font-medium text-accents-6 mb-1 transition-colors duration-200;
+    }
+
+    .glass-label, .modal-glass .form-label {
+        @apply text-foreground opacity-80 dark:opacity-90 font-semibold shadow-black/10;
+    }
+
+    .form-control, .form-input, .form-input-search, .form-select {
+        @apply flex items-center h-10 w-full rounded-xl border border-accents-2 dark:border-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-xl px-3 py-1 text-sm text-foreground shadow-sm transition-all duration-300 file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-accents-5 focus-visible:outline-none focus-visible:border-foreground focus-visible:ring-2 focus-visible:ring-foreground disabled:cursor-not-allowed disabled:opacity-50 min-w-0 hover:border-accents-4 hover:bg-white/60 dark:hover:bg-white/10 hover:shadow-md;
+    }
+
+    .form-input-search {
+        @apply rounded-full border-2 border-white/20 dark:border-white/10 bg-white/25 dark:bg-black/40 backdrop-blur-[40px] text-foreground shadow-sm transition-all duration-200 focus-visible:outline-none focus-visible:border-white/50 focus-visible:ring-0 min-w-0 hover:bg-white/40 dark:hover:bg-black/60 hover:border-white/40;
+    }
+
+    .form-filter {
+        @apply flex items-center justify-between h-10 w-full rounded-xl border-2 border-white/20 dark:border-white/10 bg-white/25 dark:bg-black/40 backdrop-blur-[40px] px-3 py-1 text-sm text-foreground shadow-sm transition-all duration-200 focus-visible:outline-none focus-visible:border-white/50 focus-visible:ring-0 min-w-0 hover:bg-white/40 dark:hover:bg-black/60 hover:border-white/40 cursor-pointer;
+    }
+    
+    /* Autofill Fix - Glass Compatible */
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover, 
+    input:-webkit-autofill:focus, 
+    input:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 30px transparent inset !important;
+        -webkit-text-fill-color: var(--foreground) !important;
+        transition: background-color 5000s ease-in-out 0s;
+        caret-color: var(--foreground);
+    }
+
+    /* Input with Icon Global Style */
+    .input-group {
+        @apply relative w-full text-accents-6 transition-colors duration-200 focus-within:text-foreground;
+    }
+    
+    .input-icon {
+        @apply absolute inset-y-0 left-0 flex items-center justify-center w-10 pointer-events-none z-10;
+    }
+    
+    .input-group .form-input,
+    .input-group .form-input-search {
+        @apply !pl-10;
+    }
+
+    .input-suffix {
+        @apply absolute inset-y-0 right-0 flex items-center pr-3 text-accents-5 pointer-events-none z-10;
+    }
+
+    /* Merged Inputs (Side-by-side) */
+    .input-group-merged {
+        @apply flex w-full relative;
+    }
+    .input-group-merged > .form-control:not(:first-child), 
+    .input-group-merged > .form-input:not(:first-child),
+    .input-group-merged > select:not(:first-child) {
+        @apply rounded-l-none -ml-px;
+    }
+    .input-group-merged > .form-control:not(:last-child),
+    .input-group-merged > .form-input:not(:last-child),
+    .input-group-merged > select:not(:last-child) {
+        @apply rounded-r-none;
+    }
+    .input-group-merged > *:focus-within {
+        @apply z-20;
+    }
+
+    /* File Input Specific Styling - Custom File Button */
+    .form-control-file {
+        @apply block w-full text-sm text-accents-5 border-2 border-accents-2 rounded-md file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-accents-2 file:text-foreground hover:file:bg-accents-3 cursor-pointer transition-colors;
+    }
+
+    .checkbox {
+        @apply appearance-none h-5 w-5 shrink-0 rounded border border-accents-5 bg-white/50 dark:bg-white/5 backdrop-blur-sm shadow-sm transition-all duration-200 checked:bg-foreground checked:border-foreground focus:outline-none focus:ring-2 focus:ring-accents-2 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer hover:border-foreground hover:shadow-md;
+        background-position: center;
+        background-size: 100%;
+        background-repeat: no-repeat;
+    }
+
+    .checkbox:checked {
+        background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
+    }
+
+    .dark .checkbox:checked {
+        background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='black' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
+    }
+
+    .card, .glass-card {
+        @apply rounded-2xl border-2 border-white/20 dark:border-white/10 bg-white/25 dark:bg-black/40 backdrop-blur-[40px] text-foreground shadow-2xl p-6 transition-all duration-500 hover:border-white/40 dark:hover:border-white/20 hover:bg-white/40 dark:hover:bg-black/60 hover:shadow-cyan-500/10 hover:-translate-y-1;
+    }
+    .status-dot {
+        @apply flex h-2 w-2 rounded-full;
+    }
+
+    .sub-card, .card-nested {
+        @apply bg-white/60 dark:bg-white/10 border-2 border-white/40 dark:border-white/10 rounded-xl p-4 shadow-md transition-all duration-300 hover:bg-white/80 dark:hover:bg-white/15 hover:border-white/60 hover:shadow-lg hover:scale-[1.01];
+    }
+
+    /* Custom Select Dropdown Global Style */
+    .custom-select-dropdown {
+        @apply absolute z-50 min-w-full mt-1 bg-white/80 dark:bg-black/80 backdrop-blur-[40px] border border-white/20 dark:border-white/10 rounded-xl shadow-2xl transition-all duration-200 ease-out origin-top opacity-0 scale-95 -translate-y-2 invisible pointer-events-none flex flex-col max-h-60 overflow-hidden ring-1 ring-black/5;
+    }
+    
+    .custom-select-dropdown.open {
+        @apply opacity-100 scale-100 translate-y-0 visible pointer-events-auto;
+    }
+
+    /* Premium Control Pill & Segmented Switch */
+    .control-pill {
+        @apply flex items-center gap-1 px-1.5 h-10 rounded-full border-2 border-accents-2 bg-white/60 dark:bg-black/40 backdrop-blur-md shadow-sm transition-all duration-300 hover:shadow-md hover:border-accents-3 hover:bg-white/80 dark:hover:bg-black/60;
+    }
+
+    .pill-divider {
+        @apply w-px h-4 bg-accents-3 mx-1 opacity-40;
+    }
+
+    .segmented-switch {
+        @apply relative flex items-center p-0.5 bg-accents-2 dark:bg-black rounded-full overflow-hidden w-14 h-8 shadow-inner border border-accents-2 dark:border-white/10;
+    }
+
+    .segmented-switch-slider {
+        @apply absolute left-0.5 top-0.5 h-7 w-7 rounded-full bg-foreground shadow-md transition-all duration-300 ease-in-out z-0;
+    }
+
+    .dark .segmented-switch-slider {
+        --tw-translate-x: 24px;
+        transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+    }
+
+    .segmented-switch-btn {
+        @apply relative z-10 flex h-7 w-7 items-center justify-center text-accents-5 transition-colors duration-300;
+    }
+
+    /* Active icon colors based on theme */
+    /* In Light Mode: Track is light, Slider is Black. We want Active icon to be WHITE on the Slider. */
+    .theme-toggle-light-icon {
+        @apply text-white;
+    }
+    .dark .theme-toggle-light-icon {
+        @apply text-accents-5 hover:text-white;
+    }
+
+    /* In Dark Mode: Track is dark, Slider is White. We want Active icon to be BLACK on the Slider. */
+    .theme-toggle-dark-icon {
+        @apply text-accents-5 hover:text-black;
+    }
+    .dark .theme-toggle-dark-icon {
+        @apply text-black;
+    }
+
+    .segmented-switch-btn.active {
+        /* This is a fallback but the specific icons above are better */
+        @apply text-background;
+    }
+
+    /* Language Switcher Pill Button */
+    .pill-lang-btn {
+        @apply flex items-center justify-center h-8 w-8 rounded-full text-foreground hover:bg-accents-2 transition-all duration-200 outline-none focus:ring-1 focus:ring-accents-3;
+    }
+    /* Glassmorphism Table */
+    .table-container {
+        @apply w-full overflow-x-auto rounded-xl border-2 border-black/5 dark:border-white/10 shadow-sm;
+    }
+
+    .table-glass {
+        @apply w-full border-collapse text-left text-sm;
+    }
+
+    .table-glass thead {
+        @apply bg-white/80 dark:bg-white/5 backdrop-blur-md border-b-2 border-black/5 dark:border-white/10;
+    }
+
+    .table-glass th {
+        @apply px-6 py-4 font-semibold text-accents-5 uppercase tracking-wider text-xs;
+    }
+
+    .table-glass tbody {
+        @apply bg-white/40 dark:bg-white/5 backdrop-blur-sm divide-y divide-black/5 dark:divide-white/10;
+    }
+
+    .table-glass tr {
+        @apply transition-colors duration-200 hover:bg-white/60 dark:hover:bg-white/10;
+    }
+
+    .table-glass td {
+        @apply px-6 py-4 text-foreground whitespace-nowrap;
+    }
+
+    /* Global Table Actions Reveal Trigger */
+    .table-actions-reveal {
+        @apply opacity-0 transition-opacity duration-200;
+    }
+
+    .table-glass tr:hover .table-actions-reveal {
+        @apply opacity-100;
+    }
+
+    /* Global Glassmorphism Modal */
+    .modal-backdrop {
+        @apply fixed inset-0 z-50 bg-black/60 backdrop-blur-sm transition-opacity duration-300;
+    }
+    
+    .modal-glass {
+        @apply fixed top-1/2 left-1/2 z-50 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-2xl border-2 border-white/20 dark:border-white/10 bg-white/25 dark:bg-black/60 backdrop-blur-[40px] shadow-2xl transition-all duration-300 scale-95 opacity-0 overflow-hidden flex flex-col max-h-[90vh];
+    }
+    
+    .modal-glass.open {
+        @apply scale-100 opacity-100;
+    }
+    
+    .modal-header {
+        @apply flex items-center justify-between px-6 py-4 border-b-2 border-white/10 bg-white/10 dark:bg-white/5;
+    }
+    
+    .modal-title {
+        @apply text-lg font-bold text-foreground tracking-tight;
+    }
+    
+    .modal-body {
+        @apply p-6 overflow-y-auto custom-scrollbar;
+    }
+    
+    .modal-footer {
+        @apply flex justify-end gap-3 px-6 py-4 border-t-2 border-white/10 bg-white/10 dark:bg-white/5;
+    }
+}
+
+@layer utilities {
+    /* Custom Scrollbar - Vercel Style */
+    ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        @apply bg-accents-3 rounded-full transition-colors;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        @apply bg-accents-4;
+    }
+    
+    /* Ensure styles apply to specific containers if needed */
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+    
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    /* Mobile only scrollbar hide */
+    @media (max-width: 768px) {
+        .no-scrollbar-mobile::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar-mobile {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    }
+}
+
+html { 
+    overflow-y: scroll; 
+    scrollbar-gutter: stable;
+}
+
+/* Premium SweetAlert2 Overrides - Glassmorphism Style */
+div.swal2-popup {
+    background-color: rgba(255, 255, 255, 0.5) !important; /* High transparency for Maximum Glossy Light Mode */
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    color: var(--foreground) !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important; /* Subtle reflective border */
+    border-radius: 0.75rem !important; /* rounded-xl */
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05) !important; /* Softer shadow */
+    padding: 1.5rem !important;
+}
+
+/* Dark mode background fix for glassmorphism */
+.dark div.swal2-popup {
+     background-color: rgba(0, 0, 0, 0.75) !important;
+     border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+div.swal2-title {
+    color: var(--foreground) !important;
+    font-family: inherit !important;
+    font-size: 1.25rem !important;
+    font-weight: 600 !important;
+    margin-top: 1rem !important;
+}
+
+div.swal2-html-container {
+    color: var(--accents-5) !important;
+    font-family: inherit !important;
+    font-size: 0.875rem !important;
+    margin-top: 0.5rem !important;
+}
+
+/* Hide default icon styling to make way for Lucide */
+div.swal2-icon {
+    border: none !important;
+    background: transparent !important;
+    margin: 0 auto !important;
+}
+
+/* Remove default animations/styles for icons */
+.swal2-icon-content {
+     display: flex !important;
+     align-items: center;
+     justify-content: center;
+}
+
+/* Target actions container for flex gap */
+div.swal2-actions {
+    gap: 1rem !important;
+}
+
+div.swal2-confirm, 
+div.swal2-cancel {
+    @apply !m-0; /* Reset margins to use flex gap */
+}
+
+div.swal2-confirm {
+    @apply btn btn-primary !important;
+    border-radius: 0.5rem !important;
+}
+
+div.swal2-cancel {
+    @apply btn btn-secondary !important;
+    border-radius: 0.5rem !important;
+}
+
+/* Dark Mode Specific Adjustments */
+.dark div.swal2-popup {
+    border-color: #333 !important;
+}
+/* Custom Icon Colors (applied to Lucide wrapper) */
+.text-success { color: #10b981; }
+.text-error { color: #ef4444; }
+.text-warning { color: #f59e0b; }
+.text-info { color: #3b82f6; }
+.text-question { color: #8b5cf6; }
+
+/* Custom Premium Stacking Toasts */
+#mivo-toast-container {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0.75rem;
+    pointer-events: none;
+    max-width: 400px;
+    width: calc(100% - 3rem);
+}
+
+.mivo-toast {
+    pointer-events: auto;
+    background-color: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    animation: toast-slide-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.dark .mivo-toast {
+    background-color: rgba(0, 0, 0, 0.7);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.mivo-toast-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.mivo-toast-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--foreground);
+    line-height: 1.25;
+}
+
+.mivo-toast-message {
+    font-size: 0.75rem;
+    color: var(--accents-5);
+    margin-top: 0.125rem;
+}
+
+.mivo-toast-close {
+    padding: 0.25rem;
+    margin: -0.25rem;
+    border-radius: 0.375rem;
+    color: var(--accents-4);
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.mivo-toast-close:hover {
+    background-color: var(--accents-2);
+    color: var(--foreground);
+}
+
+.mivo-toast-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    background-color: currentColor;
+    opacity: 0.2;
+    width: 0%;
+}
+
+@keyframes toast-slide-in {
+    from {
+        transform: translateX(100%) scale(0.9);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+    }
+}
+
+.mivo-toast-fade-out {
+    transform: translateX(100%);
+    opacity: 0;
+}
+
+/* SweetAlert Premium Fixes */
+div:where(.swal2-icon).swal2-success {
+    border-color: #10B981 !important;
+    color: #10B981 !important;
+}
+div:where(.swal2-icon).swal2-success .swal2-success-ring {
+    border-color: rgba(16, 185, 129, 0.4) !important; /* Emphasize ring slightly */
+}
+div:where(.swal2-icon).swal2-success .swal2-success-circular-line-left,
+div:where(.swal2-icon).swal2-success .swal2-success-circular-line-right,
+div:where(.swal2-icon).swal2-success .swal2-success-fix {
+    background-color: transparent !important;
+}
+div:where(.swal2-icon).swal2-success .swal2-success-line-tip,
+div:where(.swal2-icon).swal2-success .swal2-success-line-long {
+    background-color: #10B981 !important;
+}
+div:where(.swal2-icon).swal2-error {
+    border-color: #EF4444 !important;
+    color: #EF4444 !important;
+}
+
+div:where(.swal2-container) div:where(.swal2-popup).swal2-premium-card {
+    background: rgba(255, 255, 255, 0.25) !important;
+    backdrop-filter: blur(40px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+}
+.dark div:where(.swal2-container) div:where(.swal2-popup).swal2-premium-card {
+    background: rgba(0, 0, 0, 0.4) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}

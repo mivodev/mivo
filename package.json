@@ -1,0 +1,27 @@
+{
+  "name": "mivo",
+  "version": "1.0.0",
+  "description": "This is a complete rewrite of Mikhmon v3 using a modern MVC architecture.\r It runs on a lightweight custom core designed for performance on low-end devices (STB/Android).",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx tailwindcss -i ./src/input.css -o ./public/assets/css/styles.css",
+    "watch": "npx tailwindcss -i ./src/input.css -o ./public/assets/css/styles.css --watch",
+    "dev": "npx tailwindcss -i ./src/input.css -o ./public/assets/css/styles.css --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "type": "commonjs",
+  "dependencies": {
+    "chart.js": "^4.5.1",
+    "flag-icons": "^7.5.0",
+    "lucide": "^0.562.0",
+    "qrious": "^4.0.2"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.23",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.17"
+  }
+}

@@ -1,0 +1,22 @@
+# Dependencies
+/node_modules
+/vendor
+
+# System Files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Application Data
+*.log
+/app/Database/*.sqlite
+/temp_debug/
+*.bak
+
+# Build Artifacts & Deployments
+/deploy_package.tar.gz
+/mivo_backup_*.mivo
+
+# Secrets and Environment
+.env

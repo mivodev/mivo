@@ -1,0 +1,26 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * MIVO CLI Tool
+ * A lightweight Artisan-like command line interface for MIVO.
+ */
+
+// Ensure we are running in CLI mode
+if (php_sapi_name() !== 'cli') {
+    echo "Error: This script must be run from the command line.\n";
+    exit(1);
+}
+
+// Define Root Path
+define('ROOT', __DIR__);
+
+// Load Autoloader
+require_once ROOT . '/app/Core/Autoloader.php';
+\App\Core\Autoloader::register();
+
+// Load Environment Variables
+\App\Core\Env::load(ROOT . '/.env');
+
+// Run Console Kernel
+(new \App\Core\Console())->run($argv);

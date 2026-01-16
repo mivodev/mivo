@@ -1,0 +1,10 @@
+.git
+.gitignore
+.env
+node_modules
+deploy_package.tar.gz
+temp_debug
+*.md
+docker-compose.yml
+docs/
+app/Database/*.sqlite
