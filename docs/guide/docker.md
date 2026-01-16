@@ -1,16 +1,10 @@
-<p align="center">
-  <img src="https://raw.githubusercontent.com/dyzulk/mivo/main/public/assets/img/logo.png" alt="MIVO Logo" width="200" />
-</p>
+---
+title: Docker Guide
+---
 
-# MIVO (Mikrotik Voucher) Docker Image
-
-> **Modern. Lightweight. Efficient.**
-
-MIVO is a complete rewrite of the legendary **Mikhmon v3**, re-engineered with a modern MVC architecture to run efficiently on low-end devices like STB (Set Top Boxes) and Android, while providing a premium user experience on desktop.
+# Docker Guide
 
 This Docker image is built on **Alpine Linux** and **Nginx**, optimized for high performance and low resource usage.
-
-![Status](https://img.shields.io/badge/Status-Beta-orange) ![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4) ![License](https://img.shields.io/badge/License-MIT-green)
 
 ## 🚀 Quick Start
 

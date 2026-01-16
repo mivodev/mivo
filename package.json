@@ -7,7 +7,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npx tailwindcss -i ./src/input.css -o ./public/assets/css/styles.css",
     "watch": "npx tailwindcss -i ./src/input.css -o ./public/assets/css/styles.css --watch",
-    "dev": "npx tailwindcss -i ./src/input.css -o ./public/assets/css/styles.css --watch"
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +24,8 @@
   "devDependencies": {
     "autoprefixer": "^10.4.23",
     "postcss": "^8.5.6",
-    "tailwindcss": "^3.4.17"
+    "tailwindcss": "^3.4.17",
+    "vitepress": "^1.0.0-rc.31",
+    "vue": "^3.4.0"
   }
 }

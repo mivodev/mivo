@@ -28,28 +28,36 @@ MIVO is a complete rewrite of the legendary **Mikhmon v3**, re-engineered with a
 
 ### Quick Start
 
-1.  **Clone the Repository**
+1.  **Install via Composer**
     ```bash
-    git clone https://github.com/dyzulk/mivo.git
+    composer create-project dyzulk/mivo
     cd mivo
     ```
+
+    > **Alternative (Docker):**
+    > ```bash
+    > docker pull dyzulk/mivo
+    > ```
+    > *See [INSTALLATION.md](docs/INSTALLATION.md) for more tags.*
 
 2.  **Setup Environment**
     ```bash
     cp .env.example .env
     ```
 
-3.  **Install & Generate Key**
-    ```bash
-    php mivo install
-    ```
-    *This will create the database, run migrations, generate your secure `APP_KEY`, and set up the admin account.*
-
-4.  **Run Development Server**
+3.  **Run Development Server**
     ```bash
     php mivo serve
     ```
     Access the app at `http://localhost:8000`.
+
+4.  **Install Application**
+    *   **Option A: CLI (Recommended)**
+        ```bash
+        php mivo install
+        ```
+    *   **Option B: Web Installer**
+        Open `http://localhost:8000/install` in your browser and follow the instructions.
 
 ## 📂 Structure
 

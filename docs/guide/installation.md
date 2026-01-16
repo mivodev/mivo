@@ -1,4 +1,8 @@
-# MIVO Installation Guide
+---
+title: Installation Guide
+---
+
+# Installation Guide
 
 This guide covers installation on various platforms. MIVO is designed to be lightweight and runs on almost any PHP-capable server.
 
