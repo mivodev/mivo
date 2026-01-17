@@ -19,3 +19,4 @@
 /serve.bat export-ignore
 /phpstan.neon export-ignore
 /phpunit.xml export-ignore
+/aapanel_deploy.sh export-ignore
