@@ -21,6 +21,21 @@ class ProfileController extends Controller
         // Use default port 8728 if not specified
         if ($API->connect($creds['ip'], $creds['user'], $creds['password'])) {
             $profiles = $API->comm('/ip/hotspot/user/profile/print');
+            
+            // Fetch Pools & Queues for the Modal Form
+            $pools = $API->comm('/ip/pool/print');
+            $simple = $API->comm('/queue/simple/print');
+            $tree = $API->comm('/queue/tree/print');
+            
+            $queues = [];
+            foreach ($simple as $q) {
+                if(isset($q['name'])) $queues[] = $q['name'];
+            }
+            foreach ($tree as $q) {
+                 if(isset($q['name'])) $queues[] = $q['name'];
+            }
+            sort($queues);
+
             $API->disconnect();
 
             // Process profiles to add metadata from on-login script
@@ -33,15 +48,14 @@ class ProfileController extends Controller
             $this->view('hotspot/profiles/index', [
                 'session' => $session,
                 'profiles' => $profiles,
+                'pools' => $pools,
+                'queues' => $queues,
                 'title' => 'User Profiles'
             ]);
         } else {
-            $this->view('hotspot/profiles/index', [
-                'session' => $session,
-                'profiles' => [],
-                'error' => 'Connection Failed to ' . $creds['ip'],
-                'title' => 'User Profiles'
-            ]);
+            \App\Helpers\FlashHelper::set('error', 'Connection Failed', 'Could not connect to router at ' . $creds['ip']);
+            header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? '/' . $session . '/dashboard'));
+            exit;
         }
     }
 

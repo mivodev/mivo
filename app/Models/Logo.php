@@ -74,7 +74,7 @@ class Logo {
             $exists = $this->getById($id);
         } while ($exists);
 
-        $uploadDir = ROOT . '/public/assets/img/logos/';
+        $uploadDir = ROOT . '/public/uploads/logos/';
         if (!file_exists($uploadDir)) {
             mkdir($uploadDir, 0777, true);
         }
@@ -86,7 +86,7 @@ class Logo {
             $this->db->query("INSERT INTO {$this->table} (id, name, path, type, size) VALUES (:id, :name, :path, :type, :size)", [
                 'id' => $id,
                 'name' => $file['name'], 
-                'path' => '/assets/img/logos/' . $filename,
+                'path' => '/uploads/logos/' . $filename,
                 'type' => $extension,
                 'size' => $file['size']
             ]);
@@ -98,7 +98,7 @@ class Logo {
 
     public function syncFiles() {
         // One-time sync: scan folder, if file not in DB, add it.
-        $logoDir = ROOT . '/public/assets/img/logos/';
+        $logoDir = ROOT . '/public/uploads/logos/';
         if (!file_exists($logoDir)) return;
 
         $files = [];
@@ -112,7 +112,7 @@ class Logo {
             $extension = pathinfo($filename, PATHINFO_EXTENSION);
             
             // Check if file is registered (maybe by path match)
-            $webPath = '/assets/img/logos/' . $filename;
+            $webPath = '/uploads/logos/' . $filename;
             $stmt = $this->db->query("SELECT COUNT(*) FROM {$this->table} WHERE path = :path", ['path' => $webPath]);
             
             if ($stmt->fetchColumn() == 0) {

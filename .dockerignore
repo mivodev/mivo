@@ -10,3 +10,4 @@ docs/
 app/Database/*.sqlite
 public/assets/img/logos/*
 !public/assets/img/logos/.gitignore
+CNAME

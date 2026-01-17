@@ -19,7 +19,14 @@ class QuickPrintController extends Controller {
     // Dashboard: List Cards
     public function index($session) {
         $qpModel = new QuickPrintModel();
-        $packages = $qpModel->getAllBySession($session);
+        
+        $configModel = new Config();
+        $creds = $configModel->getSession($session);
+        $routerId = $creds['id'] ?? null;
+        
+        // If no ID (Legacy), fallback to empty list or handle gracefully.
+        // For now, we assume ID exists as per migration plan.
+        $packages = $routerId ? $qpModel->getAllByRouterId($routerId) : [];
 
         $data = [
             'session' => $session,
@@ -32,11 +39,12 @@ class QuickPrintController extends Controller {
     // List/Manage Packages (CRUD)
     public function manage($session) {
         $qpModel = new QuickPrintModel();
-        $packages = $qpModel->getAllBySession($session);
-
-        // Need profiles for the Add/Edit Modal
+        
         $configModel = new Config();
         $creds = $configModel->getSession($session);
+        $routerId = $creds['id'] ?? null;
+
+        $packages = $routerId ? $qpModel->getAllByRouterId($routerId) : [];
         $profiles = [];
         if ($creds) {
             $API = new RouterOSAPI();
@@ -63,7 +71,13 @@ class QuickPrintController extends Controller {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') return;
         
         $session = $_POST['session'] ?? '';
+        
+        $configModel = new Config();
+        $creds = $configModel->getSession($session);
+        $routerId = $creds['id'] ?? 0;
+
         $data = [
+            'router_id' => $routerId,
             'session_name' => $session,
             'name' => $_POST['name'] ?? 'Package',
             'server' => $_POST['server'] ?? 'all',
@@ -71,6 +85,7 @@ class QuickPrintController extends Controller {
             'prefix' => $_POST['prefix'] ?? '',
             'char_length' => $_POST['char_length'] ?? 4,
             'price' => $_POST['price'] ?? 0,
+            'selling_price' => $_POST['selling_price'] ?? ($_POST['price'] ?? 0),
             'time_limit' => $_POST['time_limit'] ?? '',
             'data_limit' => $_POST['data_limit'] ?? '',
             'comment' => $_POST['comment'] ?? '',
@@ -81,6 +96,40 @@ class QuickPrintController extends Controller {
         $qpModel->add($data);
 
         \App\Helpers\FlashHelper::set('success', 'toasts.package_saved', 'toasts.package_saved_desc', [], true);
+        header("Location: /" . $session . "/quick-print/manage");
+        exit;
+    }
+
+    // CRUD: Update
+    public function update() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') return;
+        
+        $session = $_POST['session'] ?? '';
+        $id = $_POST['id'] ?? '';
+
+        if (empty($id)) {
+            \App\Helpers\FlashHelper::set('error', 'common.error', 'toasts.error_missing_id', [], true);
+            header("Location: /" . $session . "/quick-print/manage");
+            exit;
+        }
+
+        $data = [
+            'name' => $_POST['name'] ?? 'Package',
+            'profile' => $_POST['profile'] ?? 'default',
+            'prefix' => $_POST['prefix'] ?? '',
+            'char_length' => $_POST['char_length'] ?? 4,
+            'price' => $_POST['price'] ?? 0,
+            'selling_price' => $_POST['selling_price'] ?? ($_POST['price'] ?? 0),
+            'time_limit' => $_POST['time_limit'] ?? '',
+            'data_limit' => $_POST['data_limit'] ?? '',
+            'comment' => $_POST['comment'] ?? '',
+            'color' => $_POST['color'] ?? 'bg-blue-500'
+        ];
+
+        $qpModel = new QuickPrintModel();
+        $qpModel->update($id, $data); // Assuming update method exists in simple JSON model
+
+        \App\Helpers\FlashHelper::set('success', 'toasts.package_updated', 'toasts.package_updated_desc', [], true);
         header("Location: /" . $session . "/quick-print/manage");
         exit;
     }
@@ -158,7 +207,9 @@ class QuickPrintController extends Controller {
             $API->comm("/ip/hotspot/user/add", $userData);
             $API->disconnect();
          } else {
-             die("Connection failed");
+             \App\Helpers\FlashHelper::set('error', 'Connection Failed', 'Could not connect to router at ' . $creds['ip']);
+             header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? '/' . $session . '/quick-print/manage'));
+             exit;
          }
 
 

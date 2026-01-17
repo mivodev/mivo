@@ -54,12 +54,16 @@ $title = isset($title) ? $title : \App\Config\SiteConfig::APP_NAME;
     </script>
     <script src="/assets/js/jquery.min.js"></script>
     <script src="/assets/js/lucide.min.js"></script>
-    <script src="/assets/js/custom-select.js" defer></script>
-    <script src="/assets/js/datatable.js" defer></script>
+    <script>
+        window.currentVersion = '<?= \App\Config\SiteConfig::APP_VERSION ?>';
+    </script>
+    <script src="/assets/js/mivo.js" defer></script>
+    <script src="/assets/js/modules/updater.js" defer></script>
+    <script src="/assets/js/components/select.js" defer></script>
+    <script src="/assets/js/components/datatable.js" defer></script>
     <script src="/assets/js/sweetalert2.all.min.js" defer></script>
-    <script src="/assets/js/alert-helper.js" defer></script>
-    <script src="/assets/js/i18n.js" defer></script>
-    <script src="/assets/js/i18n.js" defer></script>
+    <script src="/assets/js/modules/alert.js" defer></script>
+    <script src="/assets/js/modules/i18n.js" defer></script>
     
     <style>
         /* Global Form Input Style - Matches Vercel Design System */

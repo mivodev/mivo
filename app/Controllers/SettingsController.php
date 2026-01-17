@@ -10,7 +10,7 @@ use App\Helpers\FormatHelper;
 class SettingsController extends Controller {
     
     public function __construct() {
-        Middleware::auth();
+        // Auth handled by Router Middleware
     }
 
     public function system() {
@@ -31,10 +31,6 @@ class SettingsController extends Controller {
         $configModel = new Config();
         $routers = $configModel->getAllSessions();
         return $this->view('settings/index', ['routers' => $routers]);
-    }
-
-    public function add() {
-        return $this->view('settings/form');
     }
 
     // ... (Existing Store methods) ...
@@ -102,33 +98,7 @@ class SettingsController extends Controller {
     }
 
 
-    public function edit() {
-        // ID passed via query param or route param? 
-        // Our router supports {id} but let's check how we handle it.
-        // Router: /settings/edit/{id}
-        // In Router.php, params are passed to method.
-        // So method signature should be edit($id)
-        
-        // Wait, Router.php passes matches as params array to invokeCallback.
-        // So we need to capture arguments here.
-        $args = func_get_args();
-        $id = $args[0] ?? null;
 
-        if (!$id) {
-            header('Location: /settings/routers');
-            exit;
-        }
-
-        $configModel = new Config();
-        $session = $configModel->getSessionById($id);
-
-        if (!$session) {
-            header('Location: /settings/routers');
-            exit;
-        }
-
-        return $this->view('settings/form', ['router' => $session]);
-    }
 
     public function update() {
         $id = $_POST['id'];
@@ -316,7 +286,7 @@ class SettingsController extends Controller {
         // Restore Logos
         if (isset($json['logos'])) {
             $logoModel = new \App\Models\Logo();
-            $uploadDir = ROOT . '/public/assets/img/logos/';
+            $uploadDir = ROOT . '/public/uploads/logos/';
             if (!file_exists($uploadDir)) {
                 mkdir($uploadDir, 0777, true);
             }
@@ -341,7 +311,7 @@ class SettingsController extends Controller {
                                 ON CONFLICT(id) DO UPDATE SET name=excluded.name, path=excluded.path, type=excluded.type, size=excluded.size", [
                         'id' => $logo['id'],
                         'name' => $logo['name'],
-                        'path' => '/assets/img/logos/' . $filename,
+                        'path' => '/uploads/logos/' . $filename,
                         'type' => $extension,
                         'size' => $logo['size']
                     ]);
@@ -371,22 +341,24 @@ class SettingsController extends Controller {
     }
 
     public function uploadLogo() {
-        if (!isset($_FILES['logo_file'])) {
+        if (!isset($_FILES['logo_file']) || $_FILES['logo_file']['error'] !== UPLOAD_ERR_OK) {
+             \App\Helpers\FlashHelper::set('error', 'toasts.upload_failed', 'toasts.no_file_selected', [], true);
              header('Location: /settings/logos');
              exit;
         }
 
         $logoModel = new \App\Models\Logo();
         try {
-            $logoModel->add($_FILES['logo_file']);
+            $result = $logoModel->add($_FILES['logo_file']);
+            if ($result) {
+                \App\Helpers\FlashHelper::set('success', 'toasts.logo_uploaded', 'toasts.logo_uploaded_desc', [], true);
+            } else {
+                 \App\Helpers\FlashHelper::set('error', 'toasts.upload_failed', 'Generic upload error', [], true);
+            }
         } catch (\Exception $e) {
-            // Ideally flash error message to session
-            // For now, redirect (logging error via debug or ignoring as per simple req)
-            // session_start() is implicit in Middleware usually or index
-            // $_SESSION['error'] = $e->getMessage();
+            \App\Helpers\FlashHelper::set('error', 'toasts.upload_failed', $e->getMessage(), [], true);
         }
 
-        \App\Helpers\FlashHelper::set('success', 'toasts.logo_uploaded', 'toasts.logo_uploaded_desc', [], true);
         header('Location: /settings/logos');
     }
 

@@ -39,7 +39,8 @@
             "save_changes": "Simpan Perubahan",
             "please_wait": "Mohon tunggu...",
             "none": "tidak ada"
-        }
+        },
+        "warning": "Peringatan"
     },
     "home": {
         "subtitle": "Hotspot Manager MikroTik modern dan ringan yang dirancang untuk performa dan kemudahan.",
@@ -137,7 +138,26 @@
         "origin": "Origin",
         "methods": "Metode Diizinkan",
         "headers": "Header Diizinkan",
-        "max_age": "Max Age (detik)"
+        "max_age": "Max Age (detik)",
+        "cpu_warning": "Nilai rendah (< 5s) dapat meningkatkan beban CPU pada router lama.",
+        "back": "Kembali ke Pengaturan"
+    },
+    "routers": {
+        "edit_router_title": "Edit Router",
+        "add_router_title": "Tambah Router",
+        "connect_desc": "Hubungkan Mikhmon ke perangkat RouterOS Anda.",
+        "session_settings": "Pengaturan Sesi",
+        "unique_id": "ID Unik. Pratinjau:",
+        "show_quick_access": "Tampilkan di Akses Cepat (Beranda)",
+        "connection_details": "Detail Koneksi",
+        "password_hint": "Biarkan kosong untuk menggunakan kata sandi yang ada.",
+        "hotspot_info": "Informasi Hotspot",
+        "dns_name": "Nama DNS",
+        "traffic_interface": "Antarmuka Trafik",
+        "check_btn": "Periksa",
+        "currency": "Mata Uang",
+        "auto_reload": "Auto Reload (Detik)",
+        "save_connect": "Simpan & Hubungkan"
     },
     "login": {
         "welcome": "Selamat datang kembali, silakan masuk untuk melanjutkan.",
@@ -244,9 +264,9 @@
         "host": "Nama Host"
     },
     "cookies": {
-        "title": "Cookie Hotspot",
-        "subtitle": "Cookie autentikasi aktif untuk:",
-        "user": "User",
+        "title": "Pengguna Hotspot",
+        "subtitle": "Kelola pengguna dan voucher",
+        "name": "Nama",
         "mac": "Alamat MAC",
         "ip": "Alamat IP",
         "expires": "Kedaluwarsa Dalam",
@@ -326,6 +346,16 @@
         }
     },
     "hotspot_users": {
+        "add_user": "Tambah Pengguna",
+        "edit_user": "Edit Pengguna",
+        "title": "Pengguna Hotspot",
+        "subtitle": "Kelola pengguna dan voucher",
+        "name": "Nama",
+        "profile": "Profil",
+        "uptime_limit": "Waktu Aktif / Batas",
+        "bytes_in_out": "Bytes Masuk/Keluar",
+        "comment": "Komentar",
+        "no_users_selected": "Tidak ada pengguna yang dipilih.",
         "form": {
             "add_title": "Tambah User",
             "edit_title": "Edit User",
@@ -550,5 +580,38 @@
         "cors_rule_updated_desc": "Perubahan pada aturan CORS untuk {origin} berhasil disimpan.",
         "cors_rule_deleted": "Aturan CORS Dihapus",
         "cors_rule_deleted_desc": "Aturan CORS berhasil dihapus."
+    },
+    "status": {
+        "check_title": "Cek Status Voucher",
+        "check_desc": "Pantau penggunaan data dan masa aktif voucher Anda secara real-time tanpa perlu login ulang.",
+        "voucher_code_label": "Kode Voucher",
+        "voucher_code_placeholder": "Contoh: QWASZX",
+        "code_placeholder": "Contoh: QWASZX",
+        "check_now": "Cek Sekarang",
+        "details_title": "Detail Voucher",
+        "code": "Kode Voucher",
+        "data_remaining": "Sisa Kuota",
+        "used": "Terpakai",
+        "package": "Paket",
+        "validity": "Masa Aktif",
+        "uptime": "Uptime",
+        "expires": "Kedaluwarsa Pada",
+        "not_found_title": "Voucher Tidak Ditemukan",
+        "not_found_desc": "Kode voucher yang Anda masukkan tidak ada.",
+        "try_again": "Coba Lagi"
+    },
+    "errors": {
+        "404_title": "Halaman Tidak Ditemukan",
+        "404_desc": "Halaman yang Anda cari mungkin telah dihapus, namanya diganti, atau sedang tidak tersedia sementara.",
+        "403_title": "Akses Ditolak",
+        "403_desc": "Anda tidak memiliki izin untuk mengakses sumber daya ini.",
+        "500_title": "Kesalahan Server",
+        "500_desc": "Terjadi kesalahan di sisi kami. Silakan coba lagi nanti.",
+        "503_title": "Layanan Tidak Tersedia",
+        "503_desc": "Server saat ini tidak dapat menangani permintaan karena pemeliharaan atau kelebihan beban.",
+        "router_not_found_title": "Router Tidak Ditemukan",
+        "router_not_found_desc": "Sesi router yang Anda coba akses tidak ada atau telah dihapus.",
+        "return_home": "Kembali ke Beranda",
+        "go_back": "Kembali"
     }
 }

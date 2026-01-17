@@ -44,7 +44,10 @@ class LogController extends Controller
                 $logs = array_reverse($logs);
             }
 
-            $API->disconnect();
+        } else {
+            \App\Helpers\FlashHelper::set('error', 'Connection Failed', 'Could not connect to router at ' . $config['ip_address']);
+            header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? '/' . $session . '/dashboard'));
+            exit;
         }
 
         return $this->view('reports/user_log', [

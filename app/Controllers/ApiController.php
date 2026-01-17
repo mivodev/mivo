@@ -32,7 +32,8 @@ class ApiController extends Controller {
             $configModel = new Config();
             $session = $configModel->getSessionById($id);
             if ($session && !empty($session['password'])) {
-                $pass = EncryptionHelper::decrypt($session['password']);
+                // Config::getSessionById already decrypts the password
+                $pass = $session['password'];
             }
         }
 

@@ -45,7 +45,7 @@ class Console {
 
     private function printBanner() {
         echo "\n";
-        echo self::COLOR_BOLD . "  MIVO Helper " . self::COLOR_RESET . self::COLOR_GRAY . "v1.0" . self::COLOR_RESET . "\n\n";
+        echo self::COLOR_BOLD . "  MIVO Helper " . self::COLOR_RESET . self::COLOR_GRAY . "v1.1.0" . self::COLOR_RESET . "\n\n";
     }
 
     private function commandServe($args) {

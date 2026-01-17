@@ -6,9 +6,26 @@
     <?php else: ?>
     </div> <!-- /.container (Navbar Global) -->
     
-    <footer class="border-t border-accents-2 bg-background mt-auto transition-colors duration-200">
-        <div class="max-w-7xl mx-auto px-4 py-6 text-center text-sm text-accents-5">
-            <p><?= \App\Config\SiteConfig::getFooter() ?></p>
+    <footer class="border-t border-accents-2 bg-background mt-auto transition-colors duration-200 py-8 text-center space-y-4">
+        <!-- Links Row -->
+        <div class="flex justify-center items-center gap-6 text-sm font-medium text-accents-5">
+            <a href="https://docs.mivo.dyzulk.com" target="_blank" class="hover:text-foreground transition-colors flex items-center gap-2">
+                <i data-lucide="book-open" class="w-4 h-4"></i>
+                <span>Docs</span>
+            </a>
+            <a href="https://github.com/dyzulk/mivo/issues" target="_blank" class="hover:text-foreground transition-colors flex items-center gap-2">
+                <i data-lucide="message-circle" class="w-4 h-4"></i>
+                <span>Community</span>
+            </a>
+            <a href="https://github.com/dyzulk/mivo" target="_blank" class="hover:text-foreground transition-colors flex items-center gap-2">
+                <i data-lucide="github" class="w-4 h-4"></i>
+                <span>Repo</span>
+            </a>
+        </div>
+
+        <!-- Copyright Row -->
+        <div class="text-xs text-accents-4 opacity-50">
+            <?= \App\Config\SiteConfig::getFooter() ?>
         </div>
     </footer>
     <?php endif; ?>
@@ -129,20 +146,67 @@
     </script>
     <script>
         // Global Dropdown & Sidebar Logic
+        let menuTimeout;
+
         function toggleMenu(menuId, button) {
+            if (menuTimeout) clearTimeout(menuTimeout);
+            
             const menu = document.getElementById(menuId);
             if (!menu) return;
             
-            // Handle Dropdowns (IDs start with 'lang-' or 'session-')
-            if (menuId.startsWith('lang-') || menuId === 'session-dropdown') {
-                if (menu.classList.contains('invisible')) {
+            // Handle Dropdowns (IDs start with 'lang-', 'session-', or is 'notification-')
+            if (menuId.startsWith('lang-') || menuId === 'session-dropdown' || menuId === 'notification-dropdown') {
+                const sidebarHeader = document.getElementById('sidebar-header');
+                const isOpening = menu.classList.contains('invisible');
+
+                if (isOpening) {
+                    // Smart Positioning Logic
+                    // 1. Reset to base state (remove specific overrides to measure natural/preferred state)
+                    // But we want to preserve 'absolute' etc. The HTML has 'left-1/2 -translate-x-1/2' by default for sidebar.
+                    // We'll calculate based on button rect and assumed menu width (w-48 = 12rem = 192px approx, or measure)
+                    
+                    const btnRect = button.getBoundingClientRect();
+                    const menuWidth = 192; // Approx w-48 standard. Better to measure if possible, but invisible elements have width.
+                    // Actually, if we make it visible but opacity-0 first, we can measure.
+                    // But simpler math:
+                    const centerX = btnRect.left + (btnRect.width / 2);
+                    const leftEdge = centerX - (menuWidth / 2);
+                    const rightEdge = centerX + (menuWidth / 2);
+                    
+                    // Remove conflicting positioning classes first to ensure a clean slate if we need to override
+                    menu.classList.remove('left-0', 'right-0', 'left-1/2', '-translate-x-1/2', 'origin-top-left', 'origin-top-right', 'origin-top', 'left-3');
+
+                    // Decision Tree
+                    if (leftEdge < 10) { 
+                        // overflow left -> Align Left
+                        menu.classList.add('left-0', 'origin-top-left');
+                    } else if (rightEdge > window.innerWidth - 10) { 
+                        // overflow right -> Align Right
+                        menu.classList.add('right-0', 'origin-top-right');
+                    } else {
+                        // Safe to Center
+                        menu.classList.add('left-1/2', '-translate-x-1/2', 'origin-top');
+                    }
+                    
                     // Open
                     menu.classList.remove('opacity-0', 'scale-95', 'invisible', 'pointer-events-none');
                     menu.classList.add('opacity-100', 'scale-100', 'visible', 'pointer-events-auto');
+                    
+                    // Special Case: Sidebar Lang Dropdown needs overflow visible on header
+                    if (menuId === 'lang-dropdown-sidebar' && sidebarHeader) {
+                        sidebarHeader.classList.remove('overflow-hidden');
+                        sidebarHeader.classList.add('overflow-visible');
+                    }
                 } else {
                     // Close
                     menu.classList.add('opacity-0', 'scale-95', 'invisible', 'pointer-events-none');
                     menu.classList.remove('opacity-100', 'scale-100', 'visible', 'pointer-events-auto');
+                    
+                    // Revert Overflow
+                    if (menuId === 'lang-dropdown-sidebar' && sidebarHeader) {
+                        sidebarHeader.classList.add('overflow-hidden');
+                        sidebarHeader.classList.remove('overflow-visible');
+                    }
                 }
                 return;
             }
@@ -175,20 +239,22 @@
 
         // Close dropdowns when clicking outside
         document.addEventListener('click', function(event) {
-            const dropdowns = document.querySelectorAll('[id^="lang-dropdown"], #session-dropdown');
+            const dropdowns = document.querySelectorAll('[id^="lang-dropdown"], #session-dropdown, #notification-dropdown');
             dropdowns.forEach(dropdown => {
+                const sidebarHeader = document.getElementById('sidebar-header');
+
                 if (!dropdown.classList.contains('invisible')) {
-                    // Find the trigger button (previous sibling usually)
-                    // Robust way: check if click is inside dropdown OR inside the button that toggles it
-                    // Since button calls toggleMenu, we just need to ignore clicks inside dropdown and button?
-                    // Actually, simpler: just check if click is OUTSIDE dropdown.
-                    // But if click is on button, let button handler toggle it (don't double toggle).
-                    
                     const button = document.querySelector(`button[onclick*="'${dropdown.id}'"]`);
                     
                     if (!dropdown.contains(event.target) && (!button || !button.contains(event.target))) {
                          dropdown.classList.add('opacity-0', 'scale-95', 'invisible', 'pointer-events-none');
                          dropdown.classList.remove('opacity-100', 'scale-100', 'visible', 'pointer-events-auto');
+
+                         // Revert Sidebar Overflow if needed
+                         if (dropdown.id === 'lang-dropdown-sidebar' && sidebarHeader) {
+                             sidebarHeader.classList.add('overflow-hidden');
+                             sidebarHeader.classList.remove('overflow-visible');
+                         }
                     }
                 }
             });
@@ -209,17 +275,35 @@
                 if (data.success) {
                     Mivo.toast('success', title.replace('?', ''), 'The command has been sent to the router.');
                 } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Action Failed',
-                        text: data.error || 'Unknown error occurred.',
-                        background: 'rgba(255, 255, 255, 0.8)',
-                        backdrop: 'rgba(0,0,0,0.1)'
-                    });
+                    Mivo.alert('error', 'Action Failed', data.error || 'Unknown error occurred.');
                 }
             } catch (err) {
                 Mivo.toast('error', 'Connection Error', 'Failed to reach the server.');
             }
+        }
+
+        // Auto-Close Helper with Debounce
+        function closeMenu(menuId) {
+            if (menuTimeout) clearTimeout(menuTimeout);
+            
+            // Notification dropdown is more "sticky" (800ms vs 300ms elsewhere)
+            const delay = (menuId === 'notification-dropdown') ? 800 : 300;
+            
+            menuTimeout = setTimeout(() => {
+                const menu = document.getElementById(menuId);
+                const sidebarHeader = document.getElementById('sidebar-header');
+                
+                if (menu && !menu.classList.contains('invisible')) {
+                    menu.classList.add('opacity-0', 'scale-95', 'invisible', 'pointer-events-none');
+                    menu.classList.remove('opacity-100', 'scale-100', 'visible', 'pointer-events-auto');
+                    
+                    // Revert Overflow if needed
+                    if (menuId === 'lang-dropdown-sidebar' && sidebarHeader) {
+                        sidebarHeader.classList.add('overflow-hidden');
+                        sidebarHeader.classList.remove('overflow-visible');
+                    }
+                }
+            }, 300); // 300ms delay to prevent accidental closure
         }
     </script>
 </body>

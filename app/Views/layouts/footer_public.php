@@ -1,5 +1,23 @@
-    <footer class="mt-auto py-6 text-center text-xs text-accents-5 opacity-60">
-        <?= \App\Config\SiteConfig::getFooter() ?>
+    <footer class="mt-auto py-8 text-center space-y-4">
+        <div class="flex justify-center items-center gap-6 text-sm font-medium text-accents-5">
+            <a href="https://docs.mivo.dyzulk.com" target="_blank" class="hover:text-foreground transition-colors flex items-center gap-2">
+                <i data-lucide="book-open" class="w-4 h-4"></i>
+                <span>Docs</span>
+            </a>
+            <a href="https://github.com/dyzulk/mivo/issues" target="_blank" class="hover:text-foreground transition-colors flex items-center gap-2">
+                <i data-lucide="message-circle" class="w-4 h-4"></i>
+                <span>Community</span>
+            </a>
+            <a href="https://github.com/dyzulk/mivo" target="_blank" class="hover:text-foreground transition-colors flex items-center gap-2">
+                <i data-lucide="github" class="w-4 h-4"></i>
+                <span>Repo</span>
+            </a>
+        </div>
+
+        <!-- Copyright Row -->
+        <div class="text-xs text-accents-4 opacity-50">
+            <?= \App\Config\SiteConfig::getFooter() ?>
+        </div>
     </footer>
 
     <script>
@@ -38,34 +56,17 @@
 
                     // Use Custom Toasts for most notifications (Success, Info, Error)
                     // Only use Modal (Swal) for specific heavy warnings or questions if needed
+                    // Use Toasts for standard notifications
                     if (['success', 'info', 'error', 'warning'].includes(type)) {
-                        // Assuming Mivo.toast is available globally or via another script check
                         if (window.Mivo && window.Mivo.toast) {
                              Mivo.toast(type, title, message);
-                        } else {
-                             console.log('Toast:', title, message);
                         }
                     } else {
-                        // Use Swal for 'question' or fallback
-                        if (typeof Swal !== 'undefined') {
-                            Swal.fire({
-                                iconHtml: `<i data-lucide="${config.icon}" class="w-12 h-12 ${config.color}"></i>`,
-                                title: title,
-                                text: message,
-                                confirmButtonText: 'OK',
-                                customClass: {
-                                    popup: 'swal2-premium-card',
-                                    confirmButton: 'btn btn-primary',
-                                    cancelButton: 'btn btn-secondary',
-                                },
-                                buttonsStyling: false,
-                                heightAuto: false,
-                                didOpen: () => {
-                                    lucide.createIcons();
-                                }
-                            });
-                        } else {
-                             alert(`${title}\n${message}`);
+                        // For questions or other types, use Modal Alert
+                        if (window.Mivo && window.Mivo.alert) {
+                            Mivo.alert(type || 'info', title, message);
+                        } else if (typeof Swal !== 'undefined') {
+                            Swal.fire(title, message, type);
                         }
                     }
                 };

@@ -12,7 +12,7 @@ require_once ROOT . '/app/Views/layouts/header_main.php';
          <button onclick="location.reload()" class="btn btn-secondary">
             <i data-lucide="refresh-cw" class="w-4 h-4 mr-2"></i> <span data-i18n="reports.refresh">Refresh</span>
         </button>
-        <button onclick="openModal('addModal')" class="btn btn-primary">
+        <button onclick="openSchedulerModal('add')" class="btn btn-primary">
             <i data-lucide="plus" class="w-4 h-4 mr-2"></i> <span data-i18n="system_tools.add_task">Add Task</span>
         </button>
     </div>
@@ -54,7 +54,14 @@ require_once ROOT . '/app/Views/layouts/header_main.php';
                             $status = ($task['disabled'] === 'true') ? 'disabled' : 'enabled';
                     ?>
                     <tr class="table-row-item"
-                            data-name="<?= strtolower($task['name']) ?>"
+                            data-id="<?= $task['.id'] ?>"
+                            data-name="<?= htmlspecialchars($task['name']) ?>"
+                            data-interval="<?= htmlspecialchars($task['interval']) ?>"
+                            data-start-date="<?= htmlspecialchars($task['start-date'] ?? '') ?>"
+                            data-start-time="<?= htmlspecialchars($task['start-time'] ?? '') ?>"
+                            data-on-event="<?= htmlspecialchars($task['on-event']) ?>"
+                            data-comment="<?= htmlspecialchars($task['comment'] ?? '') ?>"
+                            data-search-name="<?= strtolower($task['name']) ?>"
                             data-status="<?= $status ?>">
                         
                         <td>
@@ -72,7 +79,7 @@ require_once ROOT . '/app/Views/layouts/header_main.php';
                         </td>
                         <td class="text-right text-sm font-medium">
                             <div class="flex items-center justify-end gap-2 table-actions-reveal">
-                                <button onclick="editTask(<?= htmlspecialchars(json_encode($task)) ?>)" class="btn-icon" title="Edit">
+                                <button onclick="openSchedulerModal('edit', this)" class="btn-icon" title="Edit">
                                     <i data-lucide="edit-2" class="w-4 h-4"></i>
                                 </button>
                                 <form action="/<?= $session ?>/system/scheduler/delete" method="POST" onsubmit="event.preventDefault(); Mivo.confirm(window.i18n ? window.i18n.t('system_tools.delete_task') : 'Delete Task?', window.i18n ? window.i18n.t('common.confirm_delete') : 'Are you sure you want to delete task <?= htmlspecialchars($task['name']) ?>?', window.i18n ? window.i18n.t('common.delete') : 'Delete', window.i18n ? window.i18n.t('common.cancel') : 'Cancel').then(res => { if(res) this.submit(); });" class="inline">
@@ -103,104 +110,7 @@ require_once ROOT . '/app/Views/layouts/header_main.php';
     </div>
 </div>
 
-<!-- Add Modal -->
-<div id="addModal" class="fixed inset-0 z-50 hidden opacity-0 transition-opacity duration-300" role="dialog" aria-modal="true">
-    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300" onclick="closeModal('addModal')"></div>
-    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-lg transition-all duration-300 scale-95 opacity-0 modal-content">
-        <div class="card shadow-2xl">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-lg font-bold" data-i18n="system_tools.add_title">Add Scheduler Task</h3>
-                <button onclick="closeModal('addModal')" class="text-accents-5 hover:text-foreground">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
-            <form action="/<?= $session ?>/system/scheduler/store" method="POST" class="space-y-4">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium mb-1" data-i18n="system_tools.name">Name</label>
-                        <input type="text" name="name" class="form-control" required>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium mb-1" data-i18n="system_tools.interval">Interval</label>
-                        <input type="text" name="interval" class="form-control" value="1d 00:00:00" placeholder="1d 00:00:00">
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium mb-1" data-i18n="system_tools.start_date">Start Date</label>
-                        <input type="text" name="start_date" class="form-control" value="Jan/01/1970">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium mb-1" data-i18n="system_tools.start_time">Start Time</label>
-                        <input type="text" name="start_time" class="form-control" value="00:00:00">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1" data-i18n="system_tools.on_event">On Event (Script)</label>
-                    <textarea name="on_event" class="form-control font-mono text-xs h-24" placeholder="/system reboot"></textarea>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1" data-i18n="system_tools.comment">Comment</label>
-                    <input type="text" name="comment" class="form-control">
-                </div>
-                <div class="flex justify-end pt-4">
-                    <button type="button" onclick="closeModal('addModal')" class="btn btn-secondary mr-2" data-i18n="common.cancel">Cancel</button>
-                    <button type="submit" class="btn btn-primary" data-i18n="system_tools.save_task">Save Task</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
 
-<!-- Edit Modal -->
-<div id="editModal" class="fixed inset-0 z-50 hidden opacity-0 transition-opacity duration-300" role="dialog" aria-modal="true">
-    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300" onclick="closeModal('editModal')"></div>
-    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-lg transition-all duration-300 scale-95 opacity-0 modal-content">
-        <div class="card shadow-2xl">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-lg font-bold" data-i18n="system_tools.edit_title">Edit Scheduler Task</h3>
-                <button onclick="closeModal('editModal')" class="text-accents-5 hover:text-foreground">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
-            <form action="/<?= $session ?>/system/scheduler/update" method="POST" class="space-y-4">
-                <input type="hidden" name="id" id="edit_id">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium mb-1" data-i18n="system_tools.name">Name</label>
-                        <input type="text" name="name" id="edit_name" class="form-control" required>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium mb-1" data-i18n="system_tools.interval">Interval</label>
-                        <input type="text" name="interval" id="edit_interval" class="form-control">
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium mb-1" data-i18n="system_tools.start_date">Start Date</label>
-                        <input type="text" name="start_date" id="edit_start_date" class="form-control">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium mb-1" data-i18n="system_tools.start_time">Start Time</label>
-                        <input type="text" name="start_time" id="edit_start_time" class="form-control">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1" data-i18n="system_tools.on_event">On Event (Script)</label>
-                    <textarea name="on_event" id="edit_on_event" class="form-control font-mono text-xs h-24"></textarea>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1" data-i18n="system_tools.comment">Comment</label>
-                    <input type="text" name="comment" id="edit_comment" class="form-control">
-                </div>
-                <div class="flex justify-end pt-4">
-                    <button type="button" onclick="closeModal('editModal')" class="btn btn-secondary mr-2" data-i18n="common.cancel">Cancel</button>
-                    <button type="submit" class="btn btn-primary" data-i18n="system_tools.update_task">Update Task</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
 
 <script>
     class TableManager {
@@ -256,7 +166,7 @@ require_once ROOT . '/app/Views/layouts/header_main.php';
 
         update() {
             this.filteredRows = this.allRows.filter(row => {
-                const name = row.dataset.name || '';
+                const name = row.dataset.searchName || '';
                 
                 if (this.filters.search && !name.includes(this.filters.search)) return false;
                 
@@ -308,47 +218,90 @@ require_once ROOT . '/app/Views/layouts/header_main.php';
         }
     }
 
-function openModal(id) {
-    const modal = document.getElementById(id);
-    const content = modal.querySelector('.modal-content');
+function openSchedulerModal(mode, btn = null) {
+    const template = document.getElementById('scheduler-form-template').innerHTML;
     
-    modal.classList.remove('hidden');
-    // Force reflow
-    void modal.offsetWidth; 
+    let title = window.i18n ? window.i18n.t('system_tools.add_title') : 'Add Scheduler Task';
+    let saveBtn = window.i18n ? window.i18n.t('common.save') : 'Save';
     
-    modal.classList.remove('opacity-0');
-    content.classList.remove('scale-95', 'opacity-0');
-    content.classList.add('scale-100', 'opacity-100');
-}
+    if (mode === 'edit') {
+        title = window.i18n ? window.i18n.t('system_tools.edit_title') : 'Edit Scheduler Task';
+        saveBtn = window.i18n ? window.i18n.t('common.forms.save_changes') : 'Save Changes';
+    }
 
-function closeModal(id) {
-    const modal = document.getElementById(id);
-    const content = modal.querySelector('.modal-content');
-    
-    modal.classList.add('opacity-0');
-    content.classList.remove('scale-100', 'opacity-100');
-    content.classList.add('scale-95', 'opacity-0');
-    
-    setTimeout(() => {
-        modal.classList.add('hidden');
-    }, 300); // Match duration-300
-}
+    const preConfirmFn = () => {
+         const form = Swal.getHtmlContainer().querySelector('form');
+         if(form.reportValidity()) {
+             form.submit();
+             return true;
+         }
+         return false;
+    };
 
-function editTask(task) {
-    document.getElementById('edit_id').value = task['.id'];
-    document.getElementById('edit_name').value = task['name'];
-    document.getElementById('edit_interval').value = task['interval'];
-    document.getElementById('edit_start_date').value = task['start-date'];
-    document.getElementById('edit_start_time').value = task['start-time'];
-    document.getElementById('edit_on_event').value = task['on-event'];
-    document.getElementById('edit_comment').value = task['comment'] ?? '';
-    
-    openModal('editModal');
+    const onOpenedFn = (popup) => {
+         const form = popup.querySelector('form');
+         
+         if (mode === 'edit' && btn) {
+             const row = btn.closest('tr');
+             form.action = "/<?= htmlspecialchars($session) ?>/system/scheduler/update";
+             
+             // Populate Hidden ID
+             const idInput = form.querySelector('#form-id');
+             idInput.disabled = false;
+             idInput.value = row.dataset.id;
+
+             // Populate Fields
+             form.querySelector('[name="name"]').value = row.dataset.name || '';
+             form.querySelector('[name="interval"]').value = row.dataset.interval || '';
+             form.querySelector('[name="start_date"]').value = row.dataset.startDate || '';
+             form.querySelector('[name="start_time"]').value = row.dataset.startTime || '';
+             form.querySelector('[name="on_event"]').value = row.dataset.onEvent || '';
+             form.querySelector('[name="comment"]').value = row.dataset.comment || '';
+         }
+    };
+
+    Mivo.modal.form(title, template, saveBtn, preConfirmFn, onOpenedFn);
 }
 
     document.addEventListener('DOMContentLoaded', () => {
         new TableManager(document.querySelectorAll('.table-row-item'), 10);
     });
 </script>
+
+<template id="scheduler-form-template">
+    <div class="text-left">
+        <form action="/<?= $session ?>/system/scheduler/store" method="POST" class="space-y-4">
+            <input type="hidden" name="id" id="form-id" disabled>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="space-y-1">
+                    <label class="form-label" data-i18n="system_tools.name">Name</label>
+                    <input type="text" name="name" class="w-full" required>
+                </div>
+                <div class="space-y-1">
+                    <label class="form-label" data-i18n="system_tools.interval">Interval</label>
+                    <input type="text" name="interval" class="w-full" value="1d 00:00:00" placeholder="1d 00:00:00">
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="space-y-1">
+                    <label class="form-label" data-i18n="system_tools.start_date">Start Date</label>
+                    <input type="text" name="start_date" class="w-full" value="Jan/01/1970">
+                </div>
+                <div class="space-y-1">
+                    <label class="form-label" data-i18n="system_tools.start_time">Start Time</label>
+                    <input type="text" name="start_time" class="w-full" value="00:00:00">
+                </div>
+            </div>
+            <div class="space-y-1">
+                <label class="form-label" data-i18n="system_tools.on_event">On Event (Script)</label>
+                <textarea name="on_event" class="w-full font-mono text-xs h-32" placeholder="/system reboot"></textarea>
+            </div>
+            <div class="space-y-1">
+                <label class="form-label" data-i18n="system_tools.comment">Comment</label>
+                <input type="text" name="comment" class="w-full">
+            </div>
+        </form>
+    </div>
+</template>
 
 <?php require_once ROOT . '/app/Views/layouts/footer_main.php'; ?>

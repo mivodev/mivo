@@ -54,8 +54,18 @@ require_once ROOT . '/app/Views/layouts/header_main.php';
                 <?php else: ?>
                     <?php foreach ($packages as $pkg): ?>
                     <tr class="table-row-item group"
-                        data-name="<?= strtolower($pkg['name']) ?>"
-                        data-price="<?= $pkg['price'] ?>">
+                        data-id="<?= htmlspecialchars($pkg['id']) ?>"
+                        data-name="<?= htmlspecialchars($pkg['name']) ?>"
+                        data-profile="<?= htmlspecialchars($pkg['profile']) ?>"
+                        data-prefix="<?= htmlspecialchars($pkg['prefix']) ?>"
+                        data-price="<?= htmlspecialchars($pkg['price']) ?>"
+                        data-selling-price="<?= htmlspecialchars($pkg['selling_price'] ?? $pkg['price']) ?>"
+                        data-time-limit="<?= htmlspecialchars($pkg['time_limit']) ?>"
+                        data-data-limit="<?= htmlspecialchars($pkg['data_limit']) ?>"
+                        data-char-length="<?= htmlspecialchars($pkg['char_length']) ?>"
+                        data-color="<?= htmlspecialchars($pkg['color']) ?>"
+                        data-comment="<?= htmlspecialchars($pkg['comment']) ?>">
+                        
                         <td class="font-medium text-foreground">
                             <div class="flex items-center gap-2">
                                 <div class="w-3 h-3 rounded-full <?= htmlspecialchars($pkg['color']) ?>"></div>
@@ -76,7 +86,7 @@ require_once ROOT . '/app/Views/layouts/header_main.php';
                                         <i data-lucide="trash-2" class="w-4 h-4"></i>
                                     </button>
                                 </form>
-                                 <button type="button" class="btn-icon" title="Edit">
+                                 <button type="button" onclick="openModal('edit', this)" class="btn-icon" title="Edit">
                                     <i data-lucide="edit-3" class="w-4 h-4"></i>
                                 </button>
                             </div>
@@ -101,96 +111,84 @@ require_once ROOT . '/app/Views/layouts/header_main.php';
     </div>
 </div>
 
-<!-- Add/Edit Modal -->
-<div id="modal-overlay" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center opacity-0 transition-opacity duration-200">
-<div id="modal-content" class="card w-full max-w-lg mx-4 transform scale-95 transition-transform duration-200 overflow-hidden p-0">
-        <div class="flex items-center justify-between px-6 py-4 border-b border-accents-2 bg-accents-1/30">
-            <h3 class="text-lg font-bold text-foreground" id="modal-title" data-i18n="quick_print.add_package">Add Package</h3>
-            <button onclick="closeModal()" class="text-accents-5 hover:text-foreground">
-                <i data-lucide="x" class="w-5 h-5"></i>
-            </button>
-        </div>
+<!-- Template for Add/Edit Package Form -->
+<template id="package-form-template">
+    <form id="qp-form" action="/<?= htmlspecialchars($session) ?>/quick-print/store" method="POST" class="space-y-4 text-left">
+         <input type="hidden" name="session" value="<?= htmlspecialchars($session) ?>">
+         <!-- Hidden ID for Edit Mode (will be disabled/removed for Add) -->
+         <input type="hidden" name="id" id="form-id" disabled> 
         
-        <form action="/<?= htmlspecialchars($session) ?>/quick-print/store" method="POST" class="p-6 space-y-4">
-             <input type="hidden" name="session" value="<?= htmlspecialchars($session) ?>">
+        <!-- Quick Inputs Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="col-span-1 md:col-span-2">
+                <label class="form-label" data-i18n="quick_print.package_name">Package Name</label>
+                <input type="text" name="name" required class="w-full" placeholder="e.g. 3 Hours Voucher">
+            </div>
             
-            <!-- Quick Inputs Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="col-span-1 md:col-span-2">
-                    <label class="form-label" data-i18n="quick_print.package_name">Package Name</label>
-                    <input type="text" name="name" required class="w-full bg-background border border-accents-2 rounded-md px-3 py-2 text-foreground focus:ring-1 focus:ring-primary focus:border-primary placeholder:text-accents-3" placeholder="e.g. 3 Hours Voucher">
-                </div>
-                
-                <div>
-                     <label class="form-label" data-i18n="quick_print.select_profile">Select Profile</label>
-                     <select name="profile" class="custom-select w-full" data-search="true">
-                        <?php foreach($profiles as $p): ?>
-                            <option value="<?= htmlspecialchars($p['name']) ?>"><?= htmlspecialchars($p['name']) ?></option>
-                        <?php endforeach; ?>
-                     </select>
-                </div>
-
-                 <div>
-                    <label class="form-label" data-i18n="quick_print.card_color">Card Color</label>
-                    <select name="color" class="custom-select w-full">
-                        <option value="bg-blue-500" data-i18n="colors.blue">Blue</option>
-                        <option value="bg-red-500" data-i18n="colors.red">Red</option>
-                        <option value="bg-green-500" data-i18n="colors.green">Green</option>
-                        <option value="bg-yellow-500" data-i18n="colors.yellow">Yellow</option>
-                        <option value="bg-purple-500" data-i18n="colors.purple">Purple</option>
-                        <option value="bg-pink-500" data-i18n="colors.pink">Pink</option>
-                        <option value="bg-indigo-500" data-i18n="colors.indigo">Indigo</option>
-                        <option value="bg-gray-800" data-i18n="colors.dark">Dark</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="form-label" data-i18n="quick_print.price">Price (Rp)</label>
-                    <input type="number" name="price" class="w-full bg-background border border-accents-2 rounded-md px-3 py-2 text-foreground focus:ring-1 focus:ring-primary focus:border-primary" placeholder="5000">
-                </div>
-
-                 <div>
-                    <label class="form-label" data-i18n="quick_print.selling_price">Selling Price</label>
-                    <input type="number" name="selling_price" class="w-full bg-background border border-accents-2 rounded-md px-3 py-2 text-foreground focus:ring-1 focus:ring-primary focus:border-primary" placeholder="Default same">
-                </div>
-
-                <div>
-                    <label class="form-label" data-i18n="quick_print.prefix">Prefix</label>
-                    <input type="text" name="prefix" class="w-full bg-background border border-accents-2 rounded-md px-3 py-2 text-foreground focus:ring-1 focus:ring-primary focus:border-primary" placeholder="Example: VIP-">
-                </div>
-
-                <div>
-                    <label class="form-label" data-i18n="quick_print.char_length">Char Length</label>
-                    <select name="char_length" class="custom-select w-full">
-                        <option value="4" selected data-i18n="common.char_length" data-i18n-params='{"n": 4}'>4 Characters</option>
-                        <option value="6" data-i18n="common.char_length" data-i18n-params='{"n": 6}'>6 Characters</option>
-                        <option value="8" data-i18n="common.char_length" data-i18n-params='{"n": 8}'>8 Characters</option>
-                    </select>
-                </div>
-                
-                 <div>
-                    <label class="form-label" data-i18n="quick_print.time_limit">Time Limit</label>
-                    <input type="text" name="time_limit" class="w-full bg-background border border-accents-2 rounded-md px-3 py-2 text-foreground focus:ring-1 focus:ring-primary focus:border-primary" placeholder="3h">
-                </div>
-
-                 <div>
-                    <label class="form-label" data-i18n="quick_print.data_limit">Data Limit</label>
-                     <input type="text" name="data_limit" class="w-full bg-background border border-accents-2 rounded-md px-3 py-2 text-foreground focus:ring-1 focus:ring-primary focus:border-primary" placeholder="500M (Optional)">
-                </div>
-
-                 <div class="col-span-1 md:col-span-2">
-                    <label class="form-label" data-i18n="system_tools.comment">Comment</label>
-                    <input type="text" name="comment" class="w-full bg-background border border-accents-2 rounded-md px-3 py-2 text-foreground focus:ring-1 focus:ring-primary focus:border-primary" placeholder="Description or Note">
-                </div>
+            <div>
+                 <label class="form-label" data-i18n="quick_print.select_profile">Select Profile</label>
+                 <select name="profile" class="w-full" data-search="true">
+                    <?php foreach($profiles as $p): ?>
+                        <option value="<?= htmlspecialchars($p['name']) ?>"><?= htmlspecialchars($p['name']) ?></option>
+                    <?php endforeach; ?>
+                 </select>
             </div>
 
-            <div class="flex justify-end gap-3 pt-4 border-t border-accents-2 mt-4">
-                <button type="button" onclick="closeModal()" class="btn btn-secondary" data-i18n="common.cancel">Cancel</button>
-                <button type="submit" class="btn btn-primary" data-i18n="quick_print.save_package">Save Package</button>
+             <div>
+                <label class="form-label" data-i18n="quick_print.card_color">Card Color</label>
+                <select name="color" class="w-full">
+                    <option value="bg-blue-500" data-i18n="colors.blue">Blue</option>
+                    <option value="bg-red-500" data-i18n="colors.red">Red</option>
+                    <option value="bg-green-500" data-i18n="colors.green">Green</option>
+                    <option value="bg-yellow-500" data-i18n="colors.yellow">Yellow</option>
+                    <option value="bg-purple-500" data-i18n="colors.purple">Purple</option>
+                    <option value="bg-pink-500" data-i18n="colors.pink">Pink</option>
+                    <option value="bg-indigo-500" data-i18n="colors.indigo">Indigo</option>
+                    <option value="bg-gray-800" data-i18n="colors.dark">Dark</option>
+                </select>
             </div>
-        </form>
-    </div>
-</div>
+
+            <div>
+                <label class="form-label" data-i18n="quick_print.price">Price (Rp)</label>
+                <input type="number" name="price" class="w-full" placeholder="5000">
+            </div>
+
+             <div>
+                <label class="form-label" data-i18n="quick_print.selling_price">Selling Price</label>
+                <input type="number" name="selling_price" class="w-full" placeholder="Default same">
+            </div>
+
+            <div>
+                <label class="form-label" data-i18n="quick_print.prefix">Prefix</label>
+                <input type="text" name="prefix" class="w-full" placeholder="Example: VIP-">
+            </div>
+
+            <div>
+                <label class="form-label" data-i18n="quick_print.char_length">Char Length</label>
+                <select name="char_length" class="w-full">
+                    <option value="4" selected data-i18n="common.char_length" data-i18n-params='{"n": 4}'>4 Characters</option>
+                    <option value="6" data-i18n="common.char_length" data-i18n-params='{"n": 6}'>6 Characters</option>
+                    <option value="8" data-i18n="common.char_length" data-i18n-params='{"n": 8}'>8 Characters</option>
+                </select>
+            </div>
+            
+             <div>
+                <label class="form-label" data-i18n="quick_print.time_limit">Time Limit</label>
+                <input type="text" name="time_limit" class="w-full" placeholder="3h">
+            </div>
+
+             <div>
+                <label class="form-label" data-i18n="quick_print.data_limit">Data Limit</label>
+                 <input type="text" name="data_limit" class="w-full" placeholder="500M (Optional)">
+            </div>
+
+             <div class="col-span-1 md:col-span-2">
+                <label class="form-label" data-i18n="system_tools.comment">Comment</label>
+                <input type="text" name="comment" class="w-full" placeholder="Description or Note">
+            </div>
+        </div>
+    </form>
+</template>
 
 <script>
     class TableManager {
@@ -298,27 +296,63 @@ require_once ROOT . '/app/Views/layouts/header_main.php';
         }
     }
 
-    const overlay = document.getElementById('modal-overlay');
-    const content = document.getElementById('modal-content');
+    function openModal(mode, btn = null) {
+        const template = document.getElementById('package-form-template').innerHTML;
+        
+        let title = window.i18n ? window.i18n.t('quick_print.add_package') : 'Add Package';
+        let saveBtn = window.i18n ? window.i18n.t('quick_print.save_package') : 'Save Package';
+        
+        // Validation Callback
+        const preConfirmFn = () => {
+             const form = Swal.getHtmlContainer().querySelector('form');
+             if(form.reportValidity()) {
+                 form.submit();
+             } else {
+                 return false;
+             }
+        };
 
-    function openModal(mode) {
-        overlay.classList.remove('hidden');
-        // Trigger reflow
-        void overlay.offsetWidth;
-        
-        overlay.classList.remove('opacity-0');
-        content.classList.add('open');
-        
-        if (typeof lucide !== 'undefined') lucide.createIcons();
-    }
+        // Population Callback (Runs BEFORE CustomSelect init)
+        const onOpenedFn = (popup) => {
+             if (mode === 'edit' && btn) {
+                 const row = btn.closest('tr');
+                 const form = popup.querySelector('form');
+                 
+                 // Update Route Logic Here if needed, or rely on Hidden ID
+                 // For now backend handles update if ID is present
+                 form.action = "/<?= htmlspecialchars($session) ?>/quick-print/update"; 
 
-    function closeModal() {
-        overlay.classList.add('opacity-0');
-        content.classList.remove('open');
+                 // Populate inputs
+                 form.querySelector('[name="id"]').value = row.dataset.id;
+                 form.querySelector('[name="id"]').disabled = false; 
+                 
+                 form.querySelector('[name="name"]').value = row.dataset.name;
+                 form.querySelector('[name="price"]').value = row.dataset.price;
+                 form.querySelector('[name="selling_price"]').value = row.dataset.sellingPrice;
+                 form.querySelector('[name="prefix"]').value = row.dataset.prefix;
+                 form.querySelector('[name="time_limit"]').value = row.dataset.timeLimit;
+                 form.querySelector('[name="data_limit"]').value = row.dataset.dataLimit;
+                 form.querySelector('[name="comment"]').value = row.dataset.comment;
+                 
+                 // Selects (Just setting value works because CustomSelect hasn't init yet!)
+                 const profileSel = form.querySelector('[name="profile"]');
+                 if(profileSel) profileSel.value = row.dataset.profile;
+                 
+                 const colorSel = form.querySelector('[name="color"]');
+                 if(colorSel) colorSel.value = row.dataset.color;
+                 
+                 const charSel = form.querySelector('[name="char_length"]');
+                 if(charSel) charSel.value = row.dataset.charLength;
+             }
+        };
+
+        if (mode === 'edit' && btn) {
+            title = window.i18n ? 'Edit Package' : 'Edit Package';
+            saveBtn = window.i18n ? 'Update Package' : 'Update Package';
+        }
         
-        setTimeout(() => {
-            overlay.classList.add('hidden');
-        }, 300);
+        // Pass callbacks to helper
+        Mivo.modal.form(title, template, saveBtn, preConfirmFn, onOpenedFn);
     }
     
     document.addEventListener('DOMContentLoaded', () => {

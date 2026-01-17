@@ -16,17 +16,21 @@ require_once ROOT . '/app/Views/layouts/header_main.php';
         </div>
         
         <h1 class="text-6xl font-extrabold tracking-tighter mb-4 text-foreground"><?= $errorCode ?></h1>
-        <h2 class="text-2xl font-bold mb-4 text-foreground"><?= $errorMessage ?></h2>
         
-        <p class="text-accents-5 max-w-md mx-auto mb-8">
+        <!-- Use data-i18n if message looks like a key (starts with errors.), otherwise show raw -->
+        <h2 class="text-2xl font-bold mb-4 text-foreground" <?= (strpos($errorMessage, 'errors.') === 0) ? 'data-i18n="'.$errorMessage.'"' : '' ?>>
+            <?= $errorMessage ?>
+        </h2>
+        
+        <p class="text-accents-5 max-w-md mx-auto mb-8" <?= (strpos($errorDescription, 'errors.') === 0) ? 'data-i18n="'.$errorDescription.'"' : '' ?>>
             <?= $errorDescription ?>
         </p>
         
         <div class="flex flex-col sm:flex-row justify-center gap-4 w-full sm:w-auto">
-            <a href="/" class="btn btn-primary w-full sm:w-auto">
+            <a href="/" class="btn btn-primary w-full sm:w-auto" data-i18n="errors.return_home">
                 Return Home
             </a>
-            <button onclick="history.back()" class="btn btn-secondary w-full sm:w-auto">
+            <button onclick="history.back()" class="btn btn-secondary w-full sm:w-auto" data-i18n="errors.go_back">
                 Go Back
             </button>
         </div>

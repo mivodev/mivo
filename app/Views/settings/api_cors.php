@@ -21,7 +21,7 @@ require_once ROOT . '/app/Views/layouts/header_main.php';
                  <!-- Spacer -->
             </div>
             <div class="flex gap-2 w-full md:w-auto">
-                <button onclick="openModal('addModal')" class="btn btn-primary w-full md:w-auto">
+                <button onclick="openCorsModal()" class="btn btn-primary w-full md:w-auto">
                     <i data-lucide="plus" class="w-4 h-4 mr-2"></i> <span data-i18n="settings.add_rule">Add CORS Rule</span>
                 </button>
             </div>
@@ -40,7 +40,12 @@ require_once ROOT . '/app/Views/layouts/header_main.php';
                 <tbody id="table-body">
                     <?php if (!empty($rules)): ?>
                         <?php foreach ($rules as $rule): ?>
-                        <tr class="table-row-item">
+                        <tr class="table-row-item" 
+                            data-rule-id="<?= $rule['id'] ?>"
+                            data-origin="<?= htmlspecialchars($rule['origin']) ?>"
+                            data-headers="<?= htmlspecialchars(implode(', ', $rule['headers_arr'])) ?>"
+                            data-max-age="<?= $rule['max_age'] ?>"
+                            data-methods='<?= json_encode($rule['methods_arr']) ?>'>
                             <td>
                                 <div class="text-sm font-medium text-foreground"><?= htmlspecialchars($rule['origin']) ?></div>
                                 <div class="text-xs text-accents-4">Max Age: <?= $rule['max_age'] ?>s</div>
@@ -57,7 +62,7 @@ require_once ROOT . '/app/Views/layouts/header_main.php';
                             </td>
                             <td class="text-right text-sm font-medium">
                                 <div class="flex items-center justify-end gap-2 table-actions-reveal">
-                                    <button onclick="editRule(<?= htmlspecialchars(json_encode($rule)) ?>)" class="btn-icon" title="Edit">
+                                    <button onclick="openCorsModal(this.closest('tr'))" class="btn-icon" title="Edit">
                                         <i data-lucide="edit-2" class="w-4 h-4"></i>
                                     </button>
                                     <form action="/settings/api-cors/delete" method="POST" onsubmit="event.preventDefault(); Mivo.confirm(window.i18n ? window.i18n.t('settings.cors_rule_deleted') : 'Delete CORS Rule?', 'Are you sure you want to delete the CORS rule for <?= htmlspecialchars($rule['origin']) ?>?', 'Delete', 'Cancel').then(res => { if(res) this.submit(); });" class="inline">
@@ -85,136 +90,71 @@ require_once ROOT . '/app/Views/layouts/header_main.php';
         </div>
     </div>
 
-<!-- Add Modal -->
-<div id="addModal" class="fixed inset-0 z-50 hidden opacity-0 transition-opacity duration-300" role="dialog" aria-modal="true">
-    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300" onclick="closeModal('addModal')"></div>
-    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-lg transition-all duration-300 scale-95 opacity-0 modal-content">
-        <div class="card shadow-2xl">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-lg font-bold" data-i18n="settings.add_rule">Add CORS Rule</h3>
-                <button onclick="closeModal('addModal')" class="text-accents-5 hover:text-foreground">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
-            <form action="/settings/api-cors/store" method="POST" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium mb-1" data-i18n="settings.origin">Origin</label>
-                    <input type="text" name="origin" class="form-control" placeholder="https://example.com or *" required>
-                    <p class="text-xs text-orange-500 dark:text-orange-400 mt-1 font-medium">Use * for all origins (not recommended for production).</p>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-2" data-i18n="settings.methods">Allowed Methods</label>
-                    <div class="grid grid-cols-3 gap-2">
-                        <?php foreach(['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD'] as $m): ?>
-                        <label class="flex items-center space-x-2 cursor-pointer">
-                            <input type="checkbox" name="methods[]" value="<?= $m ?>" class="form-checkbox" <?= in_array($m, ['GET', 'POST']) ? 'checked' : '' ?>>
-                            <span class="text-sm"><?= $m ?></span>
-                        </label>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1" data-i18n="settings.headers">Allowed Headers</label>
-                    <input type="text" name="headers" class="form-control" value="*" placeholder="Content-Type, Authorization, *">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1" data-i18n="settings.max_age">Max Age (seconds)</label>
-                    <input type="number" name="max_age" class="form-control" value="3600">
-                </div>
-                <div class="flex justify-end pt-4">
-                    <button type="button" onclick="closeModal('addModal')" class="btn btn-secondary mr-2" data-i18n="common.cancel">Cancel</button>
-                    <button type="submit" class="btn btn-primary" data-i18n="common.save">Save</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Edit Modal -->
-<div id="editModal" class="fixed inset-0 z-50 hidden opacity-0 transition-opacity duration-300" role="dialog" aria-modal="true">
-    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300" onclick="closeModal('editModal')"></div>
-    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-lg transition-all duration-300 scale-95 opacity-0 modal-content">
-        <div class="card shadow-2xl">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-lg font-bold" data-i18n="settings.edit_rule">Edit CORS Rule</h3>
-                <button onclick="closeModal('editModal')" class="text-accents-5 hover:text-foreground">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
-            <form action="/settings/api-cors/update" method="POST" class="space-y-4">
-                <input type="hidden" name="id" id="edit_id">
-                <div>
-                    <label class="block text-sm font-medium mb-1" data-i18n="settings.origin">Origin</label>
-                    <input type="text" name="origin" id="edit_origin" class="form-control" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-2" data-i18n="settings.methods">Allowed Methods</label>
-                    <div class="grid grid-cols-3 gap-2" id="edit_methods_container">
-                        <?php foreach(['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD'] as $m): ?>
-                        <label class="flex items-center space-x-2 cursor-pointer">
-                            <input type="checkbox" name="methods[]" value="<?= $m ?>" class="form-checkbox edit-method-check" data-method="<?= $m ?>">
-                            <span class="text-sm"><?= $m ?></span>
-                        </label>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1" data-i18n="settings.headers">Allowed Headers</label>
-                    <input type="text" name="headers" id="edit_headers" class="form-control">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1" data-i18n="settings.max_age">Max Age (seconds)</label>
-                    <input type="number" name="max_age" id="edit_max_age" class="form-control">
-                </div>
-                <div class="flex justify-end pt-4">
-                    <button type="button" onclick="closeModal('editModal')" class="btn btn-secondary mr-2" data-i18n="common.cancel">Cancel</button>
-                    <button type="submit" class="btn btn-primary" data-i18n="common.save">Save Changes</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
 <script>
-function openModal(id) {
-    const modal = document.getElementById(id);
-    const content = modal.querySelector('.modal-content');
-    modal.classList.remove('hidden');
-    
-    // Use double requestAnimationFrame to ensure the browser has painted the hidden->block change
-    // before we trigger the opacity/transform transitions.
-    requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-            modal.classList.remove('opacity-0');
-            content.classList.remove('scale-95', 'opacity-0');
-            content.classList.add('scale-100', 'opacity-100');
-        });
-    });
-}
+    async function openCorsModal(row = null) {
+        const isEdit = !!row;
+        const title = isEdit ? (window.i18n ? window.i18n.t('settings.edit_rule') : 'Edit CORS Rule') : (window.i18n ? window.i18n.t('settings.add_rule') : 'Add CORS Rule');
+        const template = document.getElementById('cors-form-template').innerHTML;
+        const saveBtn = window.i18n ? window.i18n.t('common.save') : 'Save';
 
-function closeModal(id) {
-    const modal = document.getElementById(id);
-    const content = modal.querySelector('.modal-content');
-    modal.classList.add('opacity-0');
-    content.classList.remove('scale-100', 'opacity-100');
-    content.classList.add('scale-95', 'opacity-0');
-    setTimeout(() => { modal.classList.add('hidden'); }, 300);
-}
+        const preConfirmFn = () => {
+            const form = document.getElementById('cors-form');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return false;
+            }
+            form.submit();
+            return true;
+        };
 
-function editRule(rule) {
-    document.getElementById('edit_id').value = rule.id;
-    document.getElementById('edit_origin').value = rule.origin;
-    document.getElementById('edit_headers').value = rule.headers_arr.join(', ');
-    document.getElementById('edit_max_age').value = rule.max_age;
-    
-    // Clear and check checkboxes
-    const methods = rule.methods_arr;
-    document.querySelectorAll('.edit-method-check').forEach(cb => {
-        cb.checked = methods.includes(cb.dataset.method);
-    });
-    
-    openModal('editModal');
-}
+        const onOpenedFn = (popup) => {
+            const form = popup.querySelector('#cors-form');
+            if (isEdit) {
+                form.action = '/settings/api-cors/update';
+                form.querySelector('[name="id"]').value = row.dataset.ruleId;
+                form.querySelector('[name="origin"]').value = row.dataset.origin;
+                form.querySelector('[name="headers"]').value = row.dataset.headers;
+                form.querySelector('[name="max_age"]').value = row.dataset.maxAge;
+                
+                const methods = JSON.parse(row.dataset.methods || '[]');
+                form.querySelectorAll('[name="methods[]"]').forEach(cb => {
+                    cb.checked = methods.includes(cb.value);
+                });
+            }
+        };
+
+        Mivo.modal.form(title, template, saveBtn, preConfirmFn, onOpenedFn);
+    }
 </script>
+
+<template id="cors-form-template">
+    <form action="/settings/api-cors/store" method="POST" id="cors-form" class="space-y-4 text-left">
+        <input type="hidden" name="id">
+        <div>
+            <label class="form-label" data-i18n="settings.origin">Origin</label>
+            <input type="text" name="origin" class="w-full" placeholder="https://example.com or *" required>
+            <p class="text-[10px] text-orange-500 dark:text-orange-400 mt-1 font-medium">Use * for all origins (not recommended for production).</p>
+        </div>
+        <div>
+            <label class="form-label" data-i18n="settings.methods">Allowed Methods</label>
+            <div class="grid grid-cols-3 gap-2">
+                <?php foreach(['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD'] as $m): ?>
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" name="methods[]" value="<?= $m ?>" class="checkbox" <?= in_array($m, ['GET', 'POST']) ? 'checked' : '' ?>>
+                    <span class="text-sm font-medium"><?= $m ?></span>
+                </label>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <div>
+            <label class="form-label" data-i18n="settings.headers">Allowed Headers</label>
+            <input type="text" name="headers" class="w-full" value="*" placeholder="Content-Type, Authorization, *">
+        </div>
+        <div>
+            <label class="form-label" data-i18n="settings.max_age">Max Age (seconds)</label>
+            <input type="number" name="max_age" class="w-full" value="3600">
+        </div>
+    </form>
+</template>
 
 <?php require_once ROOT . '/app/Views/layouts/footer_main.php'; ?>

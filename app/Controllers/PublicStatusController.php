@@ -14,14 +14,9 @@ class PublicStatusController extends Controller {
     // View: Show Search Page
     public function index($session) {
         // Just verify session existence to display Hotspot Name
+        // Session verified by RouterCheckMiddleware
         $configModel = new Config();
         $creds = $configModel->getSession($session);
-        
-        if (!$creds) {
-            // If session invalid, maybe show 404 or generic error
-            echo "Session not found.";
-            return;
-        }
 
         $data = [
             'session' => $session,
@@ -92,9 +87,6 @@ class PublicStatusController extends Controller {
         if (!empty($user)) {
             $u = $user[0];
             
-            // DEBUG: Log the user data to see raw values
-            error_log("Status Debug: " . json_encode($u));
-
             // --- SECURITY CHECK: Hide Unused Vouchers ---
             $uptimeRaw = $u['uptime'] ?? '0s';
             $bytesIn = intval($u['bytes-in'] ?? 0);

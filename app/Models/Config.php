@@ -20,6 +20,7 @@ class Config {
 
             if ($router) {
                 return [
+                    'id' => $router['id'],
                     'ip' => $router['ip_address'],
                     'ip_address' => $router['ip_address'], // Alias
                     'user' => $router['username'],

@@ -11,7 +11,7 @@ function isActive($path, $current) {
 $menu = [
     ['label' => 'routers_title', 'url' => '/settings', 'namespace' => 'settings'],
     ['label' => 'system', 'url' => '/settings/system', 'namespace' => 'settings'],
-    ['label' => 'templates_title', 'url' => '/settings/templates', 'namespace' => 'settings'],
+    ['label' => 'templates_title', 'url' => '/settings/voucher-templates', 'namespace' => 'settings'],
     ['label' => 'logos_title', 'url' => '/settings/logos', 'namespace' => 'settings'],
     ['label' => 'api_cors_title', 'url' => '/settings/api-cors', 'namespace' => 'settings'],
 ];

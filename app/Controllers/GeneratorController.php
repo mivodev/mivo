@@ -34,8 +34,9 @@ class GeneratorController extends Controller {
 
             $this->view('hotspot/generate', $data);
         } else {
-            // Handle connection error (flash message ideally, but for now redirect or show error)
-            echo "Connection failed to " . $creds['ip']; 
+            \App\Helpers\FlashHelper::set('error', 'Connection Failed', 'Could not connect to router at ' . $creds['ip']);
+            header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? '/' . $session . '/dashboard'));
+            exit;
         }
     }
 

@@ -39,7 +39,8 @@
             "none": "none",
             "enabled": "Enabled",
             "disabled": "Disabled"
-        }
+        },
+        "warning": "Warning"
     },
     "home": {
         "subtitle": "A modern, lightweight MikroTik Hotspot Manager built for performance and simplicity.",
@@ -137,7 +138,26 @@
         "origin": "Origin",
         "methods": "Allowed Methods",
         "headers": "Allowed Headers",
-        "max_age": "Max Age (seconds)"
+        "max_age": "Max Age (seconds)",
+        "cpu_warning": "Low values (< 5s) may increase CPU usage on older routers.",
+        "back": "Back to Settings"
+    },
+    "routers": {
+        "edit_router_title": "Edit Router",
+        "add_router_title": "Add Router",
+        "connect_desc": "Connect Mikhmon to your RouterOS device.",
+        "session_settings": "Session Settings",
+        "unique_id": "Unique ID. Preview:",
+        "show_quick_access": "Show in Quick Access (Home Page)",
+        "connection_details": "Connection Details",
+        "password_hint": "Leave empty to keep existing password.",
+        "hotspot_info": "Hotspot Information",
+        "dns_name": "DNS Name",
+        "traffic_interface": "Traffic Interface",
+        "check_btn": "Check",
+        "currency": "Currency",
+        "auto_reload": "Auto Reload (Sec)",
+        "save_connect": "Save & Connect"
     },
     "login": {
         "welcome": "Welcome back, please sign in to continue.",
@@ -244,9 +264,9 @@
         "host": "Host Name"
     },
     "cookies": {
-        "title": "Hotspot Cookies",
-        "subtitle": "Active authentication cookies for:",
-        "user": "User",
+        "title": "Hotspot Users",
+        "subtitle": "Manage users and vouchers",
+        "name": "Name",
         "mac": "MAC Address",
         "ip": "IP Address",
         "expires": "Expires In",
@@ -316,6 +336,16 @@
         }
     },
     "hotspot_users": {
+        "add_user": "Add User",
+        "edit_user": "Edit User",
+        "title": "Hotspot Users",
+        "subtitle": "Manage users and vouchers",
+        "name": "Name",
+        "profile": "Profile",
+        "uptime_limit": "Uptime / Limit",
+        "bytes_in_out": "Bytes In/Out",
+        "comment": "Comment",
+        "no_users_selected": "No users selected.",
         "form": {
             "add_title": "Add User",
             "edit_title": "Edit User",
@@ -540,5 +570,38 @@
         "cors_rule_updated_desc": "Changes to CORS rule for {origin} have been saved.",
         "cors_rule_deleted": "CORS Rule Deleted",
         "cors_rule_deleted_desc": "The CORS rule has been removed."
+    },
+    "status": {
+        "check_title": "Check Voucher Status",
+        "check_desc": "Monitor your data usage and voucher validity in real-time without needing to re-login.",
+        "voucher_code_label": "Voucher Code",
+        "voucher_code_placeholder": "Ex: QWASZX",
+        "code_placeholder": "Ex: QWASZX",
+        "check_now": "Check Now",
+        "details_title": "Voucher Details",
+        "code": "Voucher Code",
+        "data_remaining": "Data Remaining",
+        "used": "Used",
+        "package": "Package",
+        "validity": "Validity",
+        "uptime": "Uptime",
+        "expires": "Expires",
+        "not_found_title": "Voucher Not Found",
+        "not_found_desc": "The voucher code you entered does not exist.",
+        "try_again": "Try Again"
+    },
+    "errors": {
+        "404_title": "Page Not Found",
+        "404_desc": "The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.",
+        "403_title": "Access Denied",
+        "403_desc": "You do not have permission to access this resource.",
+        "500_title": "Server Error",
+        "500_desc": "Something went wrong on our end. Please try again later.",
+        "503_title": "Service Unavailable",
+        "503_desc": "The server is currently unable to handle the request due to maintenance or overload.",
+        "router_not_found_title": "Router Not Found",
+        "router_not_found_desc": "The router session you are trying to access does not exist or has been removed.",
+        "return_home": "Return Home",
+        "go_back": "Go Back"
     }
 }

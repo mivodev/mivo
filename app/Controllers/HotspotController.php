@@ -25,6 +25,7 @@ class HotspotController extends Controller {
 
         $userId = $session; // For view context
         $users = [];
+        $servers = [];
         $error = null;
 
         $API = new RouterOSAPI();
@@ -40,17 +41,20 @@ class HotspotController extends Controller {
             // Get all hotspot users
             $users = $API->comm("/ip/hotspot/user/print");
             
-            // Get active users to mark status (optional, can be done later for optimization)
-            // $active = $API->comm("/ip/hotspot/active/print");
+            // Get servers for dropdown
+            $servers = $API->comm("/ip/hotspot/server/print");
 
             $API->disconnect();
         } else {
-            $error = "Connection Failed to " . $creds['ip'];
+            \App\Helpers\FlashHelper::set('error', 'Connection Failed', 'Could not connect to router at ' . $creds['ip']);
+            header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? '/' . $session . '/dashboard'));
+            exit;
         }
 
         $data = [
             'session' => $session,
             'users' => $users,
+            'servers' => $servers,
             'error' => $error
         ];
 
@@ -389,7 +393,9 @@ class HotspotController extends Controller {
             $items = $API->comm("/ip/hotspot/active/print");
             $API->disconnect();
         } else {
-            $error = "Connection Failed to " . $creds['ip'];
+            \App\Helpers\FlashHelper::set('error', 'Connection Failed', 'Could not connect to router at ' . $creds['ip']);
+            header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? '/' . $session . '/dashboard'));
+            exit;
         }
 
         $data = [
@@ -451,7 +457,9 @@ class HotspotController extends Controller {
             $items = $API->comm("/ip/hotspot/host/print");
             $API->disconnect();
         } else {
-            $error = "Connection Failed to " . $creds['ip'];
+            \App\Helpers\FlashHelper::set('error', 'Connection Failed', 'Could not connect to router at ' . $creds['ip']);
+            header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? '/' . $session . '/dashboard'));
+            exit;
         }
 
         $data = [
@@ -484,7 +492,9 @@ class HotspotController extends Controller {
             $items = $API->comm("/ip/hotspot/ip-binding/print");
             $API->disconnect();
         } else {
-            $error = "Connection Failed to " . $creds['ip'];
+            \App\Helpers\FlashHelper::set('error', 'Connection Failed', 'Could not connect to router at ' . $creds['ip']);
+            header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? '/' . $session . '/dashboard'));
+            exit;
         }
 
         $data = [
@@ -606,7 +616,9 @@ class HotspotController extends Controller {
             $items = $API->comm("/ip/hotspot/walled-garden/ip/print");
             $API->disconnect();
         } else {
-            $error = "Connection Failed to " . $creds['ip'];
+            \App\Helpers\FlashHelper::set('error', 'Connection Failed', 'Could not connect to router at ' . $creds['ip']);
+            header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? '/' . $session . '/dashboard'));
+            exit;
         }
 
         $data = [
@@ -837,8 +849,9 @@ class HotspotController extends Controller {
                 $templateContent = $tpl['content'];
                 $viewName = 'print/custom';
             } else {
-                // Fallback if ID invalid
-                $currentTemplate = 'default';
+                \App\Helpers\FlashHelper::set('error', 'Template Not Found', 'The selected print template could not be found.');
+                header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? '/' . $session . '/hotspot/users'));
+                exit;
             }
         }
 

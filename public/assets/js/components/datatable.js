@@ -1,94 +1,107 @@
-class SimpleDataTable {
-        constructor(tableSelector, options = {}) {
+/**
+ * Mivo Component: Datatable
+ * A simple, lightweight, client-side datatable.
+ */
+class DataTable {
+    constructor(tableSelector, options = {}) {
         this.table = document.querySelector(tableSelector);
         if (!this.table) return;
 
         this.tbody = this.table.querySelector('tbody');
         this.rows = Array.from(this.tbody.querySelectorAll('tr'));
-        this.originalRows = [...this.rows]; // Keep copy
+        this.originalRows = [...this.rows]; 
         
         this.options = {
             itemsPerPage: 10,
             searchable: true,
             pagination: true,
-            filters: [], // Array of { index: number, label: string }
+            filters: [], 
             ...options
         };
 
         this.currentPage = 1;
         this.searchQuery = '';
-        this.activeFilters = {}; // { columnIndex: value }
+        this.activeFilters = {}; 
         this.filteredRows = [...this.originalRows];
         
-        // Wait for translations to load if i18n is used
-        if (window.i18n && window.i18n.ready) {
-            window.i18n.ready.then(() => this.init());
-        } else {
-            this.init();
+        // Listen for language changes via Mivo
+        if (window.Mivo) {
+            window.Mivo.on('languageChanged', () => {
+                this.reTranslate();
+                this.render();
+            });
         }
         
-        // Listen for language change
-        window.addEventListener('languageChanged', () => {
-            this.reTranslate();
-            this.render();
-        });
+        // Wait for I18n readiness if available
+        if (window.i18n && window.i18n.ready) {
+             window.i18n.ready.then(() => this.init());
+        } else {
+             this.init();
+        }
     }
 
     reTranslate() {
-        // Update perPage label
-        const labels = this.wrapper.querySelectorAll('span.text-accents-5');
-        labels.forEach(label => {
-            if (label.textContent.includes('entries per page') || (window.i18n && label.textContent === window.i18n.t('common.table.entries_per_page'))) {
-                label.textContent = window.i18n ? window.i18n.t('common.table.entries_per_page') : 'entries per page';
-            }
-        });
+        const i18n = window.Mivo?.modules?.I18n || window.i18n;
+        if (!i18n) return;
 
-        // Update search placeholder
-        const searchInput = this.wrapper.querySelector('input[type="text"]');
-        if (searchInput) {
-            searchInput.placeholder = window.i18n ? window.i18n.t('common.table.search_placeholder') : 'Search...';
-        }
+        // Labels
+        const labels = this.wrapper.querySelectorAll('.datatable-label');
+        labels.forEach(l => l.textContent = i18n.t('common.table.entries_per_page'));
 
-        // Update All option
-        const perPageSelect = this.wrapper.querySelector('select');
+        // Placeholder
+        const searchInput = this.wrapper.querySelector('input.form-input-search');
+        if (searchInput) searchInput.placeholder = i18n.t('common.table.search_placeholder');
+
+        // "All" option
+        const perPageSelect = this.wrapper.querySelector('select.form-filter');
         if (perPageSelect) {
             const allOption = Array.from(perPageSelect.options).find(opt => opt.value === "-1");
             if (allOption) {
-                allOption.text = window.i18n ? window.i18n.t('common.table.all') : 'All';
+                allOption.text = i18n.t('common.table.all');
+                // Refresh custom select UI if needed
+                if (window.Mivo?.components?.Select) {
+                     const instance = window.Mivo.components.Select.get(perPageSelect.id || '');
+                     if (instance) instance.refresh();
+                }
             }
         }
     }
 
     init() {
-        // Create Wrapper
+        const i18n = window.Mivo?.modules?.I18n || window.i18n;
+
+        // Wrapper
         this.wrapper = document.createElement('div');
         this.wrapper.className = 'datatable-wrapper space-y-4';
         this.table.parentNode.insertBefore(this.wrapper, this.table);
         
-        // Create Controls Header
+        // Header Controls
         const header = document.createElement('div');
         header.className = 'flex flex-col sm:flex-row justify-between items-center gap-4 mb-4';
         
-        // Show Entries Wrapper
+        // Left Controls
         const controlsLeft = document.createElement('div');
         controlsLeft.className = 'flex items-center gap-3 w-full sm:w-auto flex-wrap';
         
+        // Per Page Select
         const perPageSelect = document.createElement('select');
-        perPageSelect.className = 'form-filter w-20'; 
+        perPageSelect.className = 'form-filter w-20';
+        // Add ID for CustomSelect registry if needed
+        perPageSelect.id = 'dt-perpage-' + Math.random().toString(36).substr(2, 9);
         
         [5, 10, 25, 50, 100].forEach(num => {
-            const option = document.createElement('option');
-            option.value = num;
-            option.text = num;
-            if (num === this.options.itemsPerPage) option.selected = true;
-            perPageSelect.appendChild(option);
+            const opt = document.createElement('option');
+            opt.value = num;
+            opt.text = num;
+            if (num === this.options.itemsPerPage) opt.selected = true;
+            perPageSelect.appendChild(opt);
         });
         
-        // All option
-        const allOption = document.createElement('option');
-        allOption.value = -1;
-        allOption.text = window.i18n ? window.i18n.t('common.table.all') : 'All';
-        perPageSelect.appendChild(allOption);
+        // All Option
+        const allOpt = document.createElement('option');
+        allOpt.value = -1;
+        allOpt.text = i18n ? i18n.t('common.table.all') : 'All';
+        perPageSelect.appendChild(allOpt);
 
         perPageSelect.addEventListener('change', (e) => {
             const val = parseInt(e.target.value);
@@ -99,31 +112,30 @@ class SimpleDataTable {
 
         // Label
         const label = document.createElement('span');
-        label.className = 'text-sm text-accents-5 whitespace-nowrap';
-        label.textContent = window.i18n ? window.i18n.t('common.table.entries_per_page') : 'entries per page';
+        label.className = 'text-sm text-accents-5 whitespace-nowrap datatable-label';
+        label.textContent = i18n ? i18n.t('common.table.entries_per_page') : 'entries per page';
 
         controlsLeft.appendChild(perPageSelect);
         controlsLeft.appendChild(label);
         
-        // Initialize Filters if provided
+        // Init Custom Select using Mivo Component
+        if (window.Mivo?.components?.Select) {
+             new window.Mivo.components.Select(perPageSelect);
+        }
+
+        // Filters
         if (this.options.filters && this.options.filters.length > 0) {
-            this.options.filters.forEach(filterConfig => {
-                this.initFilter(filterConfig, controlsLeft); // Append to Left Controls
-            });
+            this.options.filters.forEach(config => this.initFilter(config, controlsLeft));
         }
 
         header.appendChild(controlsLeft);
 
-        // Initialize CustomSelect if available (for perPage)
-        if (typeof CustomSelect !== 'undefined') {
-             new CustomSelect(perPageSelect);
-        }
-
-        // Search Input
+        // Search
         if (this.options.searchable) {
             const searchWrapper = document.createElement('div');
             searchWrapper.className = 'input-group sm:w-64 z-10';
-            const placeholder = window.i18n ? window.i18n.t('common.table.search_placeholder') : 'Search...';
+            const placeholder = i18n ? i18n.t('common.table.search_placeholder') : 'Search...';
+            
             searchWrapper.innerHTML = `
                 <div class="input-icon">
                     <i data-lucide="search" class="w-4 h-4"></i>
@@ -137,21 +149,15 @@ class SimpleDataTable {
 
         this.wrapper.appendChild(header);
         
-        // Move Table into Wrapper
-        // Move Table into Wrapper
+        // Table Container
         this.tableWrapper = document.createElement('div');
-        this.tableWrapper.className = 'rounded-md border border-accents-2 overflow-x-auto bg-white/30 dark:bg-black/30 backdrop-blur-sm'; // overflow-x-auto for responsiveness
+        this.tableWrapper.className = 'rounded-md border border-accents-2 overflow-x-auto bg-white/30 dark:bg-black/30 backdrop-blur-sm';
         this.tableWrapper.appendChild(this.table);
         this.wrapper.appendChild(this.tableWrapper);
         
-        // Render Icons for Header Controls
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons({
-                root: header
-            }); 
-        }
+        if (typeof lucide !== 'undefined') lucide.createIcons({ root: header });
 
-        // Pagination Controls
+        // Pagination
         if (this.options.pagination) {
             this.paginationContainer = document.createElement('div');
             this.paginationContainer.className = 'flex items-center justify-between px-2';
@@ -162,29 +168,23 @@ class SimpleDataTable {
     }
 
     initFilter(config, container) {
-        // config = { index: number, label: string }
         const colIndex = config.index;
-        
-        // Get unique values
         const values = new Set();
         this.originalRows.forEach(row => {
             const cell = row.cells[colIndex];
             if (cell) {
-                const text = cell.textContent.trim();
-                // Basic cleanup: remove extra whitespace
+                const text = cell.innerText.trim();
                 if(text && text !== '-' && text !== '') values.add(text);
             }
         });
 
-        // Create Select
         const select = document.createElement('select');
-        select.className = 'form-filter datatable-select'; // Use a different class to avoid auto-init by custom-select.js
+        select.className = 'form-filter datatable-select';
         
-        // Default Option
-        const defaultOption = document.createElement('option');
-        defaultOption.value = '';
-        defaultOption.text = config.label;
-        select.appendChild(defaultOption);
+        const defOpt = document.createElement('option');
+        defOpt.value = '';
+        defOpt.text = config.label;
+        select.appendChild(defOpt);
 
         Array.from(values).sort().forEach(val => {
             const opt = document.createElement('option');
@@ -193,14 +193,11 @@ class SimpleDataTable {
             select.appendChild(opt);
         });
 
-        // Event Listener
         select.addEventListener('change', (e) => {
             const val = e.target.value;
-            if (val === '') {
-                delete this.activeFilters[colIndex];
-            } else {
-                this.activeFilters[colIndex] = val;
-            }
+            if (val === '') delete this.activeFilters[colIndex];
+            else this.activeFilters[colIndex] = val;
+            
             this.currentPage = 1;
             this.filterRows();
             this.render();
@@ -208,8 +205,8 @@ class SimpleDataTable {
 
         container.appendChild(select);
         
-        if (typeof CustomSelect !== 'undefined') {
-             new CustomSelect(select);
+        if (window.Mivo?.components?.Select) {
+             new window.Mivo.components.Select(select);
         }
     }
 
@@ -222,23 +219,15 @@ class SimpleDataTable {
 
     filterRows() {
         this.filteredRows = this.originalRows.filter(row => {
-            // 1. Text Search
             let matchesSearch = true;
             if (this.searchQuery) {
-                const text = row.textContent.toLowerCase();
-                matchesSearch = text.includes(this.searchQuery);
+                matchesSearch = row.innerText.toLowerCase().includes(this.searchQuery);
             }
 
-            // 2. Column Filters
             let matchesFilters = true;
             for (const [colIndex, filterValue] of Object.entries(this.activeFilters)) {
                 const cell = row.cells[colIndex];
-                if (!cell) {
-                     matchesFilters = false;
-                     break;
-                }
-                // Exact match (trimmed)
-                if (cell.textContent.trim() !== filterValue) {
+                if (!cell || cell.innerText.trim() !== filterValue) {
                     matchesFilters = false;
                     break;
                 }
@@ -249,11 +238,10 @@ class SimpleDataTable {
     }
 
     render() {
-        // Calculate pagination
+        const i18n = window.Mivo?.modules?.I18n || window.i18n;
         const totalItems = this.filteredRows.length;
         const totalPages = Math.ceil(totalItems / this.options.itemsPerPage);
         
-        // Ensure current page is valid
         if (this.currentPage > totalPages) this.currentPage = totalPages || 1;
         if (this.currentPage < 1) this.currentPage = 1;
 
@@ -261,14 +249,12 @@ class SimpleDataTable {
         const end = start + this.options.itemsPerPage;
         const currentItems = this.filteredRows.slice(start, end);
 
-        // Clear and Re-append rows
         this.tbody.innerHTML = '';
         if (currentItems.length > 0) {
             currentItems.forEach(row => this.tbody.appendChild(row));
         } else {
-            // Empty State
             const emptyRow = document.createElement('tr');
-            const noMatchText = window.i18n ? window.i18n.t('common.table.no_match') : 'No match found.';
+            const noMatchText = i18n ? i18n.t('common.table.no_match') : 'No match found.';
             emptyRow.innerHTML = `
                 <td colspan="100%" class="px-6 py-12 text-center text-accents-5">
                     <span class="text-sm">${noMatchText}</span>
@@ -277,27 +263,23 @@ class SimpleDataTable {
             this.tbody.appendChild(emptyRow);
         }
 
-        // Render Pagination
         if (this.options.pagination) {
-            this.renderPagination(totalItems, totalPages, start + 1, Math.min(end, totalItems));
+            this.renderPagination(totalItems, totalPages, start + 1, Math.min(end, totalItems), i18n);
         }
 
-        // Re-initialize icons if Lucide is available
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
-        }
+        if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
-    renderPagination(totalItems, totalPages, start, end) {
+    renderPagination(totalItems, totalPages, start, end, i18n) {
         if (totalItems === 0) {
              this.paginationContainer.innerHTML = '';
              return;
         }
 
-        const showingText = window.i18n ? window.i18n.t('common.table.showing', {start, end, total: totalItems}) : `Showing ${start} to ${end} of ${totalItems}`;
-        const previousText = window.i18n ? window.i18n.t('common.previous') : 'Previous';
-        const nextText = window.i18n ? window.i18n.t('common.next') : 'Next';
-        const pageText = window.i18n ? window.i18n.t('common.page_of', {current: this.currentPage, total: totalPages}) : `Page ${this.currentPage} of ${totalPages}`;
+        const showingText = i18n ? i18n.t('common.table.showing', {start, end, total: totalItems}) : `Showing ${start} to ${end} of ${totalItems}`;
+        const previousText = i18n ? i18n.t('common.previous') : 'Previous';
+        const nextText = i18n ? i18n.t('common.next') : 'Next';
+        const pageText = i18n ? i18n.t('common.page_of', {current: this.currentPage, total: totalPages}) : `Page ${this.currentPage} of ${totalPages}`;
 
         this.paginationContainer.innerHTML = `
             <div class="text-sm text-accents-5">
@@ -330,7 +312,11 @@ class SimpleDataTable {
     }
 }
 
-// Export if using modules, otherwise it's global
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = SimpleDataTable;
+// Register as Mivo Component
+if (window.Mivo) {
+    window.Mivo.registerComponent('Datatable', DataTable);
+    // Expose as window global for simpler backward compatibility if typically invoked via new SimpleDataTable()
+    window.SimpleDataTable = DataTable;
+} else {
+    window.SimpleDataTable = DataTable;
 }

@@ -22,8 +22,8 @@ require_once ROOT . '/app/Views/layouts/header_main.php';
             <!-- Upload Section -->
             <section>
                 <div class="card p-8 border-dashed border-2 bg-accents-1 hover:bg-background transition-colors text-center relative group">
-                    <form action="/settings/logos/upload" method="POST" enctype="multipart/form-data" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
-                        <input type="file" name="logo_file" accept=".png,.jpg,.jpeg,.svg,.gif" onchange="this.form.submit()" class="form-control-file">
+                    <form action="/settings/logos/upload" method="POST" enctype="multipart/form-data" class="absolute inset-0 w-full h-full cursor-pointer z-50">
+                        <input type="file" name="logo_file" accept=".png,.jpg,.jpeg,.svg,.gif" onchange="this.form.submit()" class="block w-full h-full opacity-0 cursor-pointer">
                     </form>
         
         <div class="flex flex-col items-center justify-center pointer-events-none">

@@ -3,7 +3,7 @@ namespace App\Config;
 
 class SiteConfig {
     const APP_NAME = 'MIVO';
-    const APP_VERSION = 'v1.0';
+    const APP_VERSION = 'v1.1.0';
     const APP_FULL_NAME = 'MIVO - Mikrotik Voucher';
     const CREDIT_NAME = 'DyzulkDev';
     const CREDIT_URL = 'https://dyzulk.com';

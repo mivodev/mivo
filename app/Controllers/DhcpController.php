@@ -26,7 +26,10 @@ class DhcpController extends Controller
         if ($API->connect($config['ip_address'], $config['username'], $config['password'])) {
             // Fetch DHCP Leases
             $leases = $API->comm("/ip/dhcp-server/lease/print");
-            $API->disconnect();
+        } else {
+            \App\Helpers\FlashHelper::set('error', 'Connection Failed', 'Could not connect to router at ' . $config['ip_address']);
+            header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? '/' . $session . '/dashboard'));
+            exit;
         }
 
         // Add index for viewing

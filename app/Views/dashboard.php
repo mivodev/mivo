@@ -322,7 +322,8 @@ require_once ROOT . '/app/Views/layouts/header_main.php';
         // Init
         fetchInterfaces().then(() => {
             // Start Polling after interfaces loaded
-            setInterval(fetchTraffic, 5000); // Every 5 seconds
+            const reloadInterval = <?= ($reload_interval ?? 5) * 1000 ?>; // Convert sec to ms
+            setInterval(fetchTraffic, reloadInterval); 
             fetchTraffic();
         });
     });

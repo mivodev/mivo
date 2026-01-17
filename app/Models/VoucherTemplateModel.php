@@ -12,10 +12,9 @@ class VoucherTemplateModel {
         return $stmt->fetchAll();
     }
     
-    public function getBySession($sessionName) {
-        // Templates can be global or session specific, but allow session filtering
+    public function getAllByRouterId($routerId) {
         $db = Database::getInstance();
-        $stmt = $db->query("SELECT * FROM voucher_templates WHERE session_name = ? OR session_name = 'global'", [$sessionName]);
+        $stmt = $db->query("SELECT * FROM voucher_templates WHERE router_id = ?", [$routerId]);
         return $stmt->fetchAll();
     }
 
@@ -27,8 +26,9 @@ class VoucherTemplateModel {
 
     public function add($data) {
         $db = Database::getInstance();
-        $sql = "INSERT INTO voucher_templates (session_name, name, content) VALUES (?, ?, ?)";
+        $sql = "INSERT INTO voucher_templates (router_id, session_name, name, content) VALUES (?, ?, ?, ?)";
         return $db->query($sql, [
+            $data['router_id'],
             $data['session_name'],
             $data['name'],
             $data['content']

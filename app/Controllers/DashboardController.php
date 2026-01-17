@@ -10,7 +10,7 @@ use App\Core\Middleware;
 class DashboardController extends Controller {
     
     public function __construct() {
-        Middleware::auth();
+        // Auth handled by Router Middleware
     }
     
     public function index($session) {
@@ -101,6 +101,7 @@ class DashboardController extends Controller {
                     'hotspot_users' => 'Hotspot Users',
                     'hotspot_users' => 'Hotspot Users',
                 ],
+                'reload_interval' => $creds['reload'] ?? 5, // Default 5s if not set
                 'interface' => $creds['interface'] ?? 'ether1'
             ];
             // Pass Users Link (Optional: could be part of layout or card link)
@@ -108,7 +109,9 @@ class DashboardController extends Controller {
             return $this->view('dashboard', $data);
 
         } else {
-             echo "Connection Failed to " . $creds['ip'];
+             \App\Helpers\FlashHelper::set('error', 'Connection Failed', 'Could not connect to router at ' . $creds['ip']);
+             header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? '/'));
+             exit;
         }
     }
 }

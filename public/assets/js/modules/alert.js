@@ -1,16 +1,19 @@
 /**
- * Global Alert Helper for Mivo
- * Provides a standardized way to trigger premium SweetAlert2 dialogs.
+ * Mivo Module: Alert
+ * Wraps SweetAlert2 and provides Toast notifications.
  */
-const Mivo = {
+class AlertModule {
+    constructor() {
+        // No specific initialization needed for now
+    }
+
     /**
      * Show a simple alert dialog.
      * @param {string} type - 'success', 'error', 'warning', 'info', 'question'
-     * @param {string} title - The title of the alert
-     * @param {string} message - The body text/HTML
-     * @returns {Promise}
+     * @param {string} title 
+     * @param {string} message 
      */
-    alert: function(type, title, message = '') {
+    fire(type, title, message = '', options = {}) {
         const typeMap = {
             'success': { icon: 'check-circle-2', color: 'text-success' },
             'error':   { icon: 'x-circle', color: 'text-error' },
@@ -21,7 +24,8 @@ const Mivo = {
 
         const config = typeMap[type] || typeMap['info'];
 
-        return Swal.fire({
+        // Default Config
+        const defaultConfig = {
             iconHtml: `<i data-lucide="${config.icon}" class="w-12 h-12 ${config.color}"></i>`,
             title: title,
             html: message,
@@ -33,21 +37,32 @@ const Mivo = {
             },
             buttonsStyling: false,
             heightAuto: false,
+            scrollbarPadding: false,
             didOpen: () => {
                 if (typeof lucide !== 'undefined') lucide.createIcons();
             }
-        });
-    },
+        };
+
+        // Merge user options with default config
+        // Special deep merge for customClass if provided to avoid wiping defaults completely?
+        // simple spread for now, user should know what they are doing if overriding classes.
+        // Actually, let's smart merge customClass
+        if (options.customClass) {
+            options.customClass = { 
+                ...defaultConfig.customClass, 
+                ...options.customClass 
+            };
+        }
+
+        const finalConfig = { ...defaultConfig, ...options };
+
+        return Swal.fire(finalConfig);
+    }
 
     /**
      * Show a confirmation dialog.
-     * @param {string} title - The title of the confirmation
-     * @param {string} message - The body text/HTML
-     * @param {string} confirmText - Text for the confirm button
-     * @param {string} cancelText - Text for the cancel button
-     * @returns {Promise} Resolves if confirmed, rejects if cancelled
      */
-    confirm: function(title, message = '', confirmText = 'Yes, Proceed', cancelText = 'Cancel') {
+    confirm(title, message = '', confirmText = 'Yes, Proceed', cancelText = 'Cancel') {
         return Swal.fire({
             iconHtml: `<i data-lucide="help-circle" class="w-12 h-12 text-question"></i>`,
             title: title,
@@ -63,20 +78,17 @@ const Mivo = {
             buttonsStyling: false,
             reverseButtons: true,
             heightAuto: false,
+            scrollbarPadding: false,
             didOpen: () => {
                 if (typeof lucide !== 'undefined') lucide.createIcons();
             }
         }).then(result => result.isConfirmed);
-    },
+    }
 
     /**
-     * Show a premium stacking toast.
-     * @param {string} type - 'success', 'error', 'warning', 'info'
-     * @param {string} title - Title
-     * @param {string} message - Body text
-     * @param {number} duration - ms before auto-close
+     * Show a stacking toast notification.
      */
-    toast: function(type, title, message = '', duration = 5000) {
+    toast(type, title, message = '', duration = 5000) {
         let container = document.getElementById('mivo-toast-container');
         if (!container) {
             container = document.createElement('div');
@@ -124,7 +136,7 @@ const Mivo = {
 
         toast.querySelector('.mivo-toast-close').addEventListener('click', closeToast);
 
-        // Auto-close with progress bar
+        // Progress Bar
         const progress = toast.querySelector('.mivo-toast-progress');
         const start = Date.now();
         
@@ -142,7 +154,73 @@ const Mivo = {
         
         requestAnimationFrame(updateProgress);
     }
-};
 
-// Also expose as global shortcuts if needed
-window.Mivo = Mivo;
+    /**
+     * Modal Form Logic
+     */
+    form(title, html, confirmText = 'Save', preConfirmFn = null, didOpenFn = null, customClass = '') {
+        return Swal.fire({
+            title: title,
+            html: html,
+            showCancelButton: true,
+            confirmButtonText: confirmText,
+            cancelButtonText: window.i18n ? window.i18n.t('common.cancel') : 'Cancel',
+            customClass: {
+                popup: `swal2-premium-card ${customClass}`,
+                title: 'text-xl font-bold text-foreground mb-4',
+                htmlContainer: 'text-left overflow-visible', // overflow-visible for selects
+                confirmButton: 'btn btn-primary px-6',
+                cancelButton: 'btn btn-secondary px-6',
+                actions: 'gap-3'
+            },
+            buttonsStyling: false,
+            reverseButtons: true,
+            heightAuto: false,
+            scrollbarPadding: false,
+            didOpen: () => {
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+                
+                const popup = Swal.getHtmlContainer();
+                
+                if (didOpenFn && typeof didOpenFn === 'function') {
+                    didOpenFn(popup);
+                }
+
+                // Initialize Custom Selects using Mivo Component if available
+                if (popup && window.Mivo && window.Mivo.components.Select) {
+                     const selects = popup.querySelectorAll('select');
+                     selects.forEach(el => {
+                         if (!el.classList.contains('custom-select')) {
+                             el.classList.add('custom-select');
+                         }
+                         new window.Mivo.components.Select(el); 
+                     });
+                }
+
+                const firstInput = popup.querySelector('input:not([type="hidden"]), textarea');
+                if (firstInput) firstInput.focus();
+            },
+            preConfirm: () => {
+                return preConfirmFn ? preConfirmFn() : true;
+            }
+        });
+    }
+}
+
+// Register Module
+if (window.Mivo) {
+    const alertModule = new AlertModule();
+    window.Mivo.registerModule('Alert', alertModule);
+    
+    // Add Aliases to Mivo object for easy access (Mivo.alert(...))
+    // This maintains backward compatibility with the old object literal style
+    window.Mivo.alert = (type, title, msg, opts) => alertModule.fire(type, title, msg, opts);
+    window.Mivo.confirm = (t, m, c, cx) => alertModule.confirm(t, m, c, cx);
+    window.Mivo.toast = (t, ti, m, d) => alertModule.toast(t, ti, m, d);
+    // Aliases for Mivo.modal call style
+    window.Mivo.modal = {
+        form: (t, h, c, p, o, cc) => alertModule.form(t, h, c, p, o, cc)
+    };
+    // Wait, modal was nested. Let's expose the form method carefully or keep it on the module.
+    // Let's just expose the module mostly.
+}

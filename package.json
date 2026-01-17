@@ -1,6 +1,6 @@
 {
   "name": "mivo",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "This is a complete rewrite of Mikhmon v3 using a modern MVC architecture.\r It runs on a lightweight custom core designed for performance on low-end devices (STB/Android).",
   "main": "index.js",
   "scripts": {

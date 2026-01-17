@@ -1,0 +1,53 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, xml, ctype, iconv, sqlite3, openssl
+          coverage: none
+
+      - name: Get version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Create Release Directory
+        run: |
+          mkdir release_temp
+          # Export source using git archive (respects .gitattributes)
+          git archive --format=tar HEAD | tar -x -C release_temp
+
+      - name: Install Production Dependencies
+        run: |
+          cd release_temp
+          composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-reqs
+
+      - name: Build Zip Artifact
+        run: |
+          cd release_temp
+          zip -r ../mivo-v${{ steps.get_version.outputs.VERSION }}.zip .
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: mivo-v${{ steps.get_version.outputs.VERSION }}.zip
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

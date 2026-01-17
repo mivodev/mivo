@@ -6,7 +6,7 @@ use App\Core\Controller;
 use App\Models\VoucherTemplateModel;
 use App\Core\Middleware;
 
-class TemplateController extends Controller {
+class VoucherTemplateController extends Controller {
 
     public function __construct() {
         Middleware::auth();
@@ -19,7 +19,7 @@ class TemplateController extends Controller {
         $data = [
             'templates' => $templates
         ];
-        return $this->view('settings/templates/index', $data);
+        return $this->view('settings/voucher_templates/index', $data);
     }
 
     public function preview($id) {
@@ -48,7 +48,7 @@ class TemplateController extends Controller {
         $data = [
             'logoMap' => $logoMap
         ];
-        return $this->view('settings/templates/add', $data); // Note: add.php likely includes edit.php or is alias. View above says 'Template Editor (Shared)'
+        return $this->view('settings/voucher_templates/add', $data); 
     }
 
     public function store() {
@@ -62,6 +62,7 @@ class TemplateController extends Controller {
         // I will use 'global' for templates created in Settings.
         
         $data = [
+            'router_id' => 0, // Global templates
             'session_name' => 'global',
             'name' => $name,
             'content' => $content
@@ -71,7 +72,7 @@ class TemplateController extends Controller {
         $templateModel->add($data);
 
         \App\Helpers\FlashHelper::set('success', 'toasts.template_created', 'toasts.template_created_desc', ['name' => $name], true);
-        header("Location: /settings/templates");
+        header("Location: /settings/voucher-templates");
         exit;
     }
 
@@ -80,7 +81,7 @@ class TemplateController extends Controller {
         $template = $templateModel->getById($id);
 
         if (!$template) {
-             header("Location: /settings/templates");
+             header("Location: /settings/voucher-templates");
              exit;
         }
 
@@ -95,7 +96,7 @@ class TemplateController extends Controller {
             'template' => $template,
             'logoMap' => $logoMap
         ];
-        return $this->view('settings/templates/edit', $data);
+        return $this->view('settings/voucher_templates/edit', $data);
     }
 
     public function update() {
@@ -114,7 +115,7 @@ class TemplateController extends Controller {
         $templateModel->update($id, $data);
 
         \App\Helpers\FlashHelper::set('success', 'toasts.template_updated', 'toasts.template_updated_desc', ['name' => $name], true);
-        header("Location: /settings/templates");
+        header("Location: /settings/voucher-templates");
         exit;
     }
 
@@ -126,7 +127,7 @@ class TemplateController extends Controller {
         $templateModel->delete($id);
 
         \App\Helpers\FlashHelper::set('success', 'toasts.template_deleted', 'toasts.template_deleted_desc', [], true);
-        header("Location: /settings/templates");
+        header("Location: /settings/voucher-templates");
         exit;
     }
 }

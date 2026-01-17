@@ -61,6 +61,7 @@ class Migrations {
         // 6. Quick Prints (Voucher Printing Profiles)
         $pdo->exec("CREATE TABLE IF NOT EXISTS quick_prints (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            router_id INTEGER,
             session_name TEXT NOT NULL,
             name TEXT NOT NULL,
             server TEXT NOT NULL,
@@ -68,6 +69,7 @@ class Migrations {
             prefix TEXT DEFAULT '',
             char_length INTEGER DEFAULT 4,
             price INTEGER DEFAULT 0,
+            selling_price INTEGER DEFAULT 0,
             time_limit TEXT DEFAULT '',
             data_limit TEXT DEFAULT '',
             comment TEXT DEFAULT '',
@@ -79,6 +81,7 @@ class Migrations {
         // 7. Voucher Templates
         $pdo->exec("CREATE TABLE IF NOT EXISTS voucher_templates (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            router_id INTEGER,
             session_name TEXT NOT NULL,
             name TEXT NOT NULL,
             content TEXT NOT NULL,

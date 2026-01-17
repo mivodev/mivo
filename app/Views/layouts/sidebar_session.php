@@ -3,7 +3,7 @@
 $uri = $_SERVER['REQUEST_URI'] ?? '/';
 $isDashboard = strpos($uri, '/dashboard') !== false;
 $isGenerate = strpos($uri, '/hotspot/generate') !== false;
-$isTemplates = strpos($uri, '/settings/templates') !== false;
+$isTemplates = strpos($uri, '/settings/voucher-templates') !== false;
 $isSettings = ($uri === '/settings' || strpos($uri, '/settings/') !== false) && !$isTemplates;
 
 // Hotspot Group Active Check
@@ -106,7 +106,7 @@ $getInitials = function($name) {
     <aside id="sidebar" class="w-64 flex-shrink-0 border-r border-white/20 dark:border-white/10 bg-white/40 dark:bg-black/40 backdrop-blur-[40px] fixed md:static inset-y-0 left-0 z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-200 flex flex-col h-full">
         <!-- Sidebar Header -->
         <!-- Sidebar Header -->
-        <div class="group flex flex-col items-center py-5 border-b border-accents-2 flex-shrink-0 relative cursor-default overflow-hidden">
+        <div id="sidebar-header" class="group flex flex-col items-center py-5 border-b border-accents-2 flex-shrink-0 relative cursor-default overflow-hidden">
             <div class="relative w-full h-10 flex items-center justify-center">
                 <!-- Brand (Slides out to the Left) -->
                 <div class="flex items-center gap-2 font-bold text-2xl tracking-tighter transition-all duration-500 ease-in-out group-hover:-translate-x-full group-hover:opacity-0">
@@ -119,17 +119,19 @@ $getInitials = function($name) {
                 <div class="absolute inset-0 hidden md:flex items-center justify-center transition-all duration-500 ease-in-out translate-x-full opacity-0 group-hover:translate-x-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto z-10">
                     <div class="control-pill scale-90 transition-transform hover:scale-100 shadow-lg bg-white/10 dark:bg-black/20 backdrop-blur-md">
                         <!-- Language Switcher -->
-                        <div class="relative group/lang">
+                        <!-- Language Switcher (Mivo Component) -->
+                        <!-- Language Switcher -->
+                        <div class="relative group/lang" onmouseleave="closeMenu('lang-dropdown-sidebar')">
                             <button type="button" class="pill-lang-btn" onclick="toggleMenu('lang-dropdown-sidebar', this)" title="Change Language">
                                 <i data-lucide="languages" class="w-4 h-4 !text-black dark:!text-white" stroke-width="2.5"></i>
                             </button>
-                            <div id="lang-dropdown-sidebar" class="absolute left-1/2 -translate-x-1/2 top-full mt-3 w-48 bg-background/90 backdrop-blur-xl border border-accents-2 rounded-xl shadow-xl overflow-hidden transition-all duration-200 ease-out origin-top opacity-0 scale-95 invisible pointer-events-none z-50">
+                            <div id="lang-dropdown-sidebar" class="absolute left-1/2 -translate-x-1/2 top-full mt-3 w-48 bg-background/95 backdrop-blur-2xl border border-accents-2 rounded-xl shadow-xl overflow-hidden transition-all duration-200 ease-out origin-top opacity-0 scale-95 invisible pointer-events-none z-50 dropdown-bridge" onmouseenter="if(typeof menuTimeout !== 'undefined') clearTimeout(menuTimeout)">
                                 <div class="px-3 py-2 text-[10px] font-bold text-accents-4 uppercase tracking-widest border-b border-accents-2/50 bg-accents-1/50" data-i18n="sidebar.switch_language">Select Language</div>
                                 <?php 
                                 $languages = \App\Helpers\LanguageHelper::getAvailableLanguages();
                                 foreach ($languages as $lang): 
                                 ?>
-                                <button onclick="changeLanguage('<?= $lang['code'] ?>')" class="w-full text-left flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-accents-1 transition-colors text-accents-6 hover:text-foreground group/lang-item">
+                                <button onclick="Mivo.modules.I18n.loadLanguage('<?= $lang['code'] ?>')" class="w-full text-left flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-accents-1 transition-colors text-accents-6 hover:text-foreground group/lang-item">
                                     <span class="fi fi-<?= $lang['flag'] ?> rounded-sm shadow-sm transition-transform group-hover/lang-item:scale-110"></span>
                                     <span><?= $lang['name'] ?></span>
                                 </button>
@@ -163,7 +165,7 @@ $getInitials = function($name) {
         <div class="flex-1 overflow-y-auto" style="direction: rtl;">
             <div class="py-4 px-3 space-y-1" style="direction: ltr;">
             <!-- Session Switcher -->
-            <div class="px-3 mb-6 relative">
+            <div class="px-3 mb-6 relative" onmouseleave="closeMenu('session-dropdown')">
                 <button type="button" class="w-full group grid grid-cols-[auto_1fr_auto] items-center gap-3 px-4 py-2.5 rounded-xl bg-white/50 dark:bg-white/5 border border-accents-2 dark:border-white/10 hover:bg-white/80 dark:hover:bg-white/10 transition-all decoration-0 overflow-hidden shadow-sm" onclick="toggleMenu('session-dropdown', this)">
                     <!-- Initials -->
                     <div class="h-8 w-8 rounded-lg bg-accents-2/50 group-hover:bg-accents-2 flex items-center justify-center text-xs font-bold text-accents-6 group-hover:text-foreground transition-colors flex-shrink-0">
@@ -185,7 +187,7 @@ $getInitials = function($name) {
                 </button>
 
                 <!-- Dropdown -->
-                <div id="session-dropdown" class="absolute top-full left-3 w-[calc(100%-1.5rem)] z-50 mt-1 bg-background border border-accents-2 rounded-lg shadow-lg overflow-hidden transition-all duration-200 ease-out origin-top opacity-0 scale-95 invisible pointer-events-none">
+                <div id="session-dropdown" class="absolute top-full left-3 w-[calc(100%-1.5rem)] z-50 mt-1 bg-background border border-accents-2 rounded-lg shadow-lg overflow-hidden transition-all duration-200 ease-out origin-top opacity-0 scale-95 invisible pointer-events-none dropdown-bridge" onmouseenter="if(typeof menuTimeout !== 'undefined') clearTimeout(menuTimeout)">
                     <div class="py-1 max-h-60 overflow-y-auto">
                         <div class="px-3 py-2 text-xs font-semibold text-accents-5 uppercase tracking-wider bg-accents-1/50 border-b border-accents-2" data-i18n="sidebar.switch_session">
                             Switch Session
@@ -377,9 +379,35 @@ $getInitials = function($name) {
             </a>
 
             <!-- Voucher Templates -->
-            <a href="/settings/templates" class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors <?= $isTemplates ? 'bg-white/40 dark:bg-white/5 shadow-sm text-foreground ring-1 ring-white/10' : 'text-accents-6 hover:text-foreground hover:bg-white/5' ?>">
+            <a href="/settings/voucher-templates" class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors <?= $isTemplates ? 'bg-white/40 dark:bg-white/5 shadow-sm text-foreground ring-1 ring-white/10' : 'text-accents-6 hover:text-foreground hover:bg-white/5' ?>">
                  <i data-lucide="file-code" class="w-4 h-4"></i>
                  <span data-i18n="sidebar.templates">Templates</span>
+            </a>
+
+            <!-- Support Separator -->
+            <div class="pt-4 pb-1 px-3">
+                <div class="text-xs font-semibold text-accents-5 uppercase tracking-wider" data-i18n="sidebar.support">Support</div>
+            </div>
+
+            <!-- Docs -->
+            <a href="https://docs.mivo.dyzulk.com" target="_blank" class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors text-accents-6 hover:text-foreground hover:bg-white/5">
+                 <i data-lucide="book-open" class="w-4 h-4"></i>
+                 <span data-i18n="sidebar.docs">Documentation</span>
+                 <i data-lucide="external-link" class="w-3 h-3 ml-auto opacity-50"></i>
+            </a>
+
+            <!-- Community -->
+            <a href="https://github.com/dyzulk/mivo/issues" target="_blank" class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors text-accents-6 hover:text-foreground hover:bg-white/5">
+                 <i data-lucide="message-circle" class="w-4 h-4"></i>
+                 <span data-i18n="sidebar.community">Community</span>
+                 <i data-lucide="external-link" class="w-3 h-3 ml-auto opacity-50"></i>
+            </a>
+
+            <!-- Repo -->
+            <a href="https://github.com/dyzulk/mivo" target="_blank" class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors text-accents-6 hover:text-foreground hover:bg-white/5">
+                 <i data-lucide="github" class="w-4 h-4"></i>
+                 <span data-i18n="sidebar.repo">Repository</span>
+                 <i data-lucide="external-link" class="w-3 h-3 ml-auto opacity-50"></i>
             </a>
 
         </div>
@@ -435,7 +463,7 @@ $getInitials = function($name) {
                         <button type="button" class="pill-lang-btn" onclick="toggleMenu('lang-dropdown-mobile', this)" title="Change Language">
                              <i data-lucide="languages" class="w-4 h-4"></i>
                         </button>
-                         <div id="lang-dropdown-mobile" class="absolute right-0 top-full mt-3 w-48 bg-background/90 backdrop-blur-xl border border-accents-2 rounded-xl shadow-xl overflow-hidden transition-all duration-200 ease-out origin-top-right opacity-0 scale-95 invisible pointer-events-none z-50">
+                         <div id="lang-dropdown-mobile" class="absolute right-0 top-full mt-3 w-48 bg-background/90 backdrop-blur-xl border border-accents-2 rounded-xl shadow-xl overflow-hidden transition-all duration-200 ease-out origin-top-right opacity-0 scale-95 invisible pointer-events-none z-50 dropdown-bridge" onmouseenter="if(typeof menuTimeout !== 'undefined') clearTimeout(menuTimeout)">
                             <div class="px-3 py-2 text-[10px] font-bold text-accents-4 uppercase tracking-widest border-b border-accents-2/50 bg-accents-1/50" data-i18n="sidebar.switch_language">Select Language</div>
                             <?php 
                             $languages = \App\Helpers\LanguageHelper::getAvailableLanguages();

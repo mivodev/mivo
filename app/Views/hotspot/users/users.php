@@ -15,6 +15,10 @@ if (!empty($users)) {
     }
 }
 sort($uniqueProfiles);
+
+// $servers is passed from controller
+if (!isset($servers)) $servers = [];
+
 sort($uniqueComments);
 ?>
 
@@ -27,9 +31,9 @@ sort($uniqueComments);
         <a href="/<?= htmlspecialchars($session) ?>/dashboard" class="btn btn-secondary">
             <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i> <span data-i18n="common.dashboard">Dashboard</span>
         </a>
-        <a href="/<?= htmlspecialchars($session) ?>/hotspot/add" class="btn btn-primary">
+        <button onclick="openUserModal('add')" class="btn btn-primary">
             <i data-lucide="plus" class="w-4 h-4 mr-2"></i> <span data-i18n="hotspot_users.add_user">Add User</span>
-        </a>
+        </button>
     </div>
 </div>
 
@@ -107,13 +111,38 @@ sort($uniqueComments);
             <tbody id="table-body">
                 <?php if (!empty($users)): ?>
                     <?php foreach ($users as $user): ?>
+                    <?php
+                        // Helper to split time limit for editing (Simple parsing or raw passing)
+                        // Assuming time limit format from router is like 1d2h3m or just 1h
+                        // We will pass the raw string if we can't easily split, OR rely on a JS parser.
+                        // For now let's pass raw limit-uptime.
+                        
+                        // Just prepare some safe values
+                        $id = $user['.id'];
+                        $name = $user['name'] ?? '';
+                        $profile = $user['profile'] ?? 'default';
+                        $comment = $user['comment'] ?? '';
+                        $server = $user['server'] ?? 'all';
+                        $password = $user['password'] ?? '';
+                        
+                        // Limits
+                        $limitUptime = $user['limit-uptime'] ?? '';
+                        $limitBytes = $user['limit-bytes-total'] ?? '';
+                    ?>
                     <tr class="table-row-item" 
-                        data-name="<?= strtolower($user['name'] ?? '') ?>" 
-                        data-profile="<?= $user['profile'] ?? 'default' ?>" 
-                        data-comment="<?= htmlspecialchars($user['comment'] ?? '') ?>">
+                        data-id="<?= htmlspecialchars($id) ?>"
+                        data-name="<?= strtolower($name) ?>" 
+                        data-rawname="<?= htmlspecialchars($name) ?>"
+                        data-profile="<?= htmlspecialchars($profile) ?>" 
+                        data-comment="<?= htmlspecialchars($comment) ?>"
+                        data-comment-raw="<?= htmlspecialchars($comment) ?>"
+                        data-password="<?= htmlspecialchars($password) ?>"
+                        data-server="<?= htmlspecialchars($server) ?>"
+                        data-limit-uptime="<?= htmlspecialchars($limitUptime) ?>"
+                        data-limit-bytes-total="<?= htmlspecialchars($limitBytes) ?>">
                         
                         <td class="px-4 py-4">
-                            <input type="checkbox" name="selected_users[]" value="<?= htmlspecialchars($user['.id']) ?>" class="user-checkbox checkbox">
+                            <input type="checkbox" name="selected_users[]" value="<?= htmlspecialchars($id) ?>" class="user-checkbox checkbox">
                         </td>
                         <td>
                             <div class="flex items-center w-full">
@@ -122,19 +151,19 @@ sort($uniqueComments);
                                 </div>
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-center justify-between gap-4">
-                                        <div class="text-sm font-medium text-foreground truncate"><?= htmlspecialchars($user['name'] ?? '-') ?></div>
+                                        <div class="text-sm font-medium text-foreground truncate"><?= htmlspecialchars($name) ?></div>
                                         <?php 
                                             $status = \App\Helpers\HotspotHelper::getUserStatus($user);
                                             echo \App\Helpers\ViewHelper::badge($status);
                                         ?>
                                     </div>
-                                    <div class="text-xs text-accents-5"><?= htmlspecialchars($user['password'] ?? '******') ?></div>
+                                    <div class="text-xs text-accents-5"><?= htmlspecialchars($password) ?></div>
                                 </div>
                             </div>
                         </td>
                         <td>
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
-                                <?= htmlspecialchars($user['profile'] ?? 'default') ?>
+                                <?= htmlspecialchars($profile) ?>
                             </span>
                         </td>
                         <td>
@@ -148,19 +177,19 @@ sort($uniqueComments);
                             </div>
                         </td>
                         <td>
-                            <div class="text-sm text-accents-5 italic"><?= htmlspecialchars($user['comment'] ?? '-') ?></div>
+                            <div class="text-sm text-accents-5 italic"><?= htmlspecialchars($comment) ?></div>
                         </td>
                         <td class="text-right text-sm font-medium">
                             <div class="flex items-center justify-end gap-2 table-actions-reveal">
-                                <button onclick="printUser('<?= htmlspecialchars($user['.id']) ?>')" class="btn-icon" title="Print">
+                                <button onclick="printUser('<?= htmlspecialchars($id) ?>')" class="btn-icon" title="Print">
                                     <i data-lucide="printer" class="w-4 h-4"></i>
                                 </button>
-                                <a href="/<?= htmlspecialchars($session) ?>/hotspot/user/edit/<?= urlencode($user['.id']) ?>" class="btn-icon inline-flex items-center justify-center" title="Edit">
+                                <button onclick="openUserModal('edit', this)" class="btn-icon inline-flex items-center justify-center" title="Edit">
                                     <i data-lucide="edit-2" class="w-4 h-4"></i>
-                                </a>
-                                <form action="/<?= htmlspecialchars($session) ?>/hotspot/delete" method="POST" onsubmit="event.preventDefault(); Mivo.confirm('Delete User?', 'Are you sure you want to delete user <?= htmlspecialchars($user['name'] ?? '') ?>?', 'Delete', 'Cancel').then(res => { if(res) this.submit(); });" class="inline">
+                                </button>
+                                <form action="/<?= htmlspecialchars($session) ?>/hotspot/delete" method="POST" onsubmit="event.preventDefault(); Mivo.confirm('Delete User?', 'Are you sure you want to delete user <?= htmlspecialchars($name) ?>?', 'Delete', 'Cancel').then(res => { if(res) this.submit(); });" class="inline">
                                     <input type="hidden" name="session" value="<?= htmlspecialchars($session) ?>">
-                                    <input type="hidden" name="id" value="<?= $user['.id'] ?>">
+                                    <input type="hidden" name="id" value="<?= $id ?>">
                                     <button type="submit" class="btn-icon-danger" title="Delete">
                                         <i data-lucide="trash-2" class="w-4 h-4"></i>
                                     </button>
@@ -188,6 +217,133 @@ sort($uniqueComments);
 </div>
 
 <?php require_once ROOT . '/app/Views/layouts/footer_main.php'; ?>
+<!-- Add/Edit User Template -->
+<template id="user-form-template">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 text-left">
+        <!-- Form Column -->
+        <div class="lg:col-span-2">
+            <form id="user-form" action="/<?= htmlspecialchars($session) ?>/hotspot/store" method="POST" class="space-y-4">
+                <input type="hidden" name="session" value="<?= htmlspecialchars($session) ?>">
+                <input type="hidden" name="id" id="form-id" disabled> <!-- Disabled for Add -->
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Name & Password -->
+                    <div class="space-y-1">
+                        <label class="form-label" data-i18n="hotspot_users.form.username">Username</label>
+                        <div class="input-group">
+                            <span class="input-icon"><i data-lucide="user" class="w-4 h-4"></i></span>
+                            <input type="text" name="name" required class="pl-10 w-full" data-i18n-placeholder="hotspot_users.form.username_placeholder" placeholder="e.g. voucher123">
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="form-label" data-i18n="hotspot_users.form.password">Password</label>
+                        <div class="input-group">
+                            <span class="input-icon"><i data-lucide="key" class="w-4 h-4"></i></span>
+                            <input type="text" name="password" required class="pl-10 w-full" data-i18n-placeholder="hotspot_users.form.password_placeholder" placeholder="e.g. 123456">
+                        </div>
+                    </div>
+
+                     <!-- Profile -->
+                    <div class="space-y-1 col-span-1 md:col-span-2">
+                        <label class="form-label" data-i18n="hotspot_users.form.profile">Profile</label>
+                        <select name="profile" class="w-full" data-search="true">
+                            <?php foreach($uniqueProfiles as $p): ?>
+                                <option value="<?= htmlspecialchars($p) ?>"><?= htmlspecialchars($p) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <!-- Server -->
+                     <div class="space-y-1">
+                        <label class="form-label" data-i18n="hotspot_users.form.server">Server</label>
+                        <select name="server" class="w-full">
+                            <option value="all">all</option>
+                            <?php 
+                            if (!empty($servers)):
+                                foreach($servers as $s): 
+                                    $sName = $s['name'] ?? '';
+                                    if ($sName === 'all' || empty($sName)) continue; 
+                            ?>
+                                <option value="<?= htmlspecialchars($sName) ?>"><?= htmlspecialchars($sName) ?></option>
+                            <?php 
+                                endforeach; 
+                            endif;
+                            ?>
+                        </select>
+                    </div>
+
+                    <!-- Comment -->
+                    <div class="space-y-1">
+                        <label class="form-label" data-i18n="hotspot_users.form.comment">Comment</label>
+                        <div class="input-group">
+                            <span class="input-icon"><i data-lucide="message-square" class="w-4 h-4"></i></span>
+                            <input type="text" name="comment" class="pl-10 w-full" placeholder="Optional note">
+                        </div>
+                    </div>
+                    
+                     <!-- Time Limit -->
+                    <div class="space-y-1">
+                        <label class="form-label" data-i18n="hotspot_users.form.time_limit">Time Limit</label>
+                        <div class="flex w-full">
+                            <div class="relative flex-1">
+                                <span class="absolute right-2 top-2 text-xs font-bold text-accents-4 pointer-events-none">D</span>
+                                <input type="number" name="timelimit_d" min="0" class="w-full pr-6 rounded-r-none border-r-0 text-center" placeholder="0">
+                            </div>
+                            <div class="relative flex-1">
+                                <span class="absolute right-2 top-2 text-xs font-bold text-accents-4 pointer-events-none">H</span>
+                                <input type="number" name="timelimit_h" min="0" max="23" class="w-full pr-6 rounded-none border-r-0 text-center" placeholder="0">
+                            </div>
+                            <div class="relative flex-1">
+                                <span class="absolute right-2 top-2 text-xs font-bold text-accents-4 pointer-events-none">M</span>
+                                <input type="number" name="timelimit_m" min="0" max="59" class="w-full pr-6 rounded-l-none text-center" placeholder="0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Data Limit -->
+                    <div class="space-y-1">
+                        <label class="form-label" data-i18n="hotspot_users.form.data_limit">Data Limit</label>
+                        <div class="flex relative w-full">
+                            <div class="relative flex-grow z-0">
+                                <span class="input-icon"><i data-lucide="database" class="w-4 h-4"></i></span>
+                                <input type="number" name="datalimit_val" min="0" class="form-input w-full pl-10 rounded-r-none" placeholder="0">
+                            </div>
+                            <div class="relative -ml-px w-20 z-0">
+                                <select name="datalimit_unit" class="w-full rounded-l-none bg-accents-1 text-center font-medium">
+                                    <option value="MB" selected>MB</option>
+                                    <option value="GB">GB</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Spacer for dropdowns -->
+                <div class="h-24"></div>
+            </form>
+        </div>
+
+        <!-- Tips Column -->
+        <div class="hidden lg:block space-y-4 border-l border-white/10 pl-6">
+            <h3 class="text-sm font-bold text-foreground flex items-center gap-2">
+                <i data-lucide="lightbulb" class="w-4 h-4 text-yellow-400"></i>
+                <span data-i18n="hotspot_users.form.quick_tips">Quick Tips</span>
+            </h3>
+            <ul class="text-xs text-accents-5 space-y-3 list-disc pl-4">
+                <li data-i18n="hotspot_users.form.tip_profiles">
+                    <strong>Profiles</strong> define the default speed limits, session timeout, and shared users policy.
+                </li>
+                <li data-i18n="hotspot_users.form.tip_time_limit">
+                    <strong>Time Limit</strong> is the total accumulated uptime allowed for this user.
+                </li>
+                <li data-i18n="hotspot_users.form.tip_data_limit">
+                    <strong>Data Limit</strong> will override the profile's data limit settings if specified here. Set to 0 to use profile default.
+                </li>
+            </ul>
+        </div>
+    </div>
+</template>
+
 <script>
     class TableManager {
         constructor(rows, itemsPerPage = 10) {
@@ -244,9 +400,7 @@ sort($uniqueComments);
                 }
             });
             
-            // Custom Select Listener (Mutation Observer or custom event if we emitted one, 
-            // but for now relying on underlying SELECT change or custom-select class behavior)
-            // Since CustomSelect updates the original Select, we listen to change on original select
+            // Filters
             document.getElementById('filter-profile').addEventListener('change', (e) => {
                 this.filters.profile = e.target.value;
                 this.currentPage = 1;
@@ -258,11 +412,8 @@ sort($uniqueComments);
                 this.currentPage = 1;
                 this.update();
             });
-            
-            // Re-bind actions when external CustomSelect updates the select value
-            // CustomSelect triggers 'change' event on original select, so standard listener works!
 
-             // Listen for language change to update pagination text
+             // Listen for language change
              window.addEventListener('languageChanged', () => {
                 this.render();
             });
@@ -272,10 +423,10 @@ sort($uniqueComments);
             // Apply Filters
             this.filteredRows = this.allRows.filter(row => {
                 const name = row.dataset.name || '';
-                const comment = (row.dataset.comment || '').toLowerCase(); // dataset comment value
+                const comment = (row.dataset.comment || '').toLowerCase();
                 const profile = row.dataset.profile || '';
                 
-                // 1. Search (Name or Comment)
+                // 1. Search
                 if (this.filters.search) {
                      const matchName = name.includes(this.filters.search);
                      const matchComment = comment.includes(this.filters.search);
@@ -285,7 +436,7 @@ sort($uniqueComments);
                 // 2. Profile
                 if (this.filters.profile && profile !== this.filters.profile) return false;
                 
-                // 3. Comment (Exact match for dropdown)
+                // 3. Comment
                 if (this.filters.comment && row.dataset.comment !== this.filters.comment) return false;
                 
                 return true;
@@ -303,7 +454,7 @@ sort($uniqueComments);
             const start = (this.currentPage - 1) * this.itemsPerPage;
             const end = Math.min(start + this.itemsPerPage, total);
             
-            // Update Text (Use Translation)
+            // Update Text
             if (window.i18n) {
                 const text = window.i18n.t('common.table.showing', {
                     start: total === 0 ? 0 : start + 1,
@@ -312,9 +463,9 @@ sort($uniqueComments);
                 });
                 document.getElementById('pagination-text').textContent = text;
             } else {
-                 this.elements.startIdx.textContent = total === 0 ? 0 : start + 1;
-                 this.elements.endIdx.textContent = end;
-                 this.elements.totalCount.textContent = total;
+                 // Fallback
+                 const el = document.getElementById('pagination-text');
+                 el.innerHTML = `Showing <span class="font-medium text-foreground">${total === 0 ? 0 : start + 1}</span> to <span class="font-medium text-foreground">${end}</span> of <span class="font-medium text-foreground">${total}</span> users`;
             }
             
             // Clear & Append Rows
@@ -332,118 +483,177 @@ sort($uniqueComments);
                 this.elements.pageNumbers.innerHTML = `<span class="px-3 py-1 text-sm font-medium bg-accents-2 rounded text-accents-6">${pageText}</span>`;
             }
 
-            // Re-init Icons for new rows
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
+            // Re-init Icons
+            if (typeof lucide !== 'undefined') lucide.createIcons();
             
-            // Update Checkbox Logic (Select All should act on visible?)
-            // We usually reset "Select All" check when page changes
+            // Reset "Select All"
             document.getElementById('select-all').checked = false;
         }
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-        // Init Custom Selects
-        if (typeof CustomSelect !== 'undefined') {
-            document.querySelectorAll('.custom-select').forEach(select => {
-                new CustomSelect(select);
-            });
-        }
+    // --- Modal Logic ---
+    function openUserModal(mode, btn = null) {
+        const template = document.getElementById('user-form-template').innerHTML;
         
+        let title = window.i18n ? window.i18n.t('hotspot_users.add_user') : 'Add User';
+        let saveBtn = window.i18n ? window.i18n.t('common.save') : 'Save';
+        
+        if (mode === 'edit') {
+            title = window.i18n ? window.i18n.t('hotspot_users.edit_user') : 'Edit User';
+            saveBtn = window.i18n ? window.i18n.t('common.forms.save_changes') : 'Save Changes';
+        }
+
+        const preConfirmFn = () => {
+             const form = Swal.getHtmlContainer().querySelector('form');
+             if(form.reportValidity()) {
+                 form.submit();
+                 return true;
+             }
+             return false;
+        };
+
+        const onOpenedFn = (popup) => {
+             const form = popup.querySelector('form');
+             
+             if (mode === 'edit' && btn) {
+                 const row = btn.closest('tr');
+                 
+                 form.action = "/<?= htmlspecialchars($session) ?>/hotspot/update";
+                 
+                 // Populate Hidden ID
+                 const idInput = form.querySelector('#form-id');
+                 idInput.disabled = false;
+                 idInput.value = row.dataset.id; // Ensure data-id is set on TR!
+
+                 // Populate Fields (Assuming data attributes or simple values)
+                 // NOTE: For full data (limits, etc), we might need to fetch OR put all in data attributes
+                 // Let's rely on data attributes for speed, but need to add them to TR first
+                 form.querySelector('[name="name"]').value = row.dataset.rawname || '';
+                 form.querySelector('[name="password"]').value = row.dataset.password || '';
+                 form.querySelector('[name="comment"]').value = row.dataset.commentRaw || '';
+                 
+                 // Selects
+                 const profileSel = form.querySelector('[name="profile"]');
+                 if(profileSel) profileSel.value = row.dataset.profile;
+                 
+                 const serverSel = form.querySelector('[name="server"]');
+                 if(serverSel) serverSel.value = row.dataset.server || 'all';
+
+                 // Limits (Parsing from data attributes)
+                 // Time Limit
+                 const tLimit = row.dataset.limitUptime || '';
+                 // Simple regex parsing for 1d2h3m (Mikrotik format)
+                 // This is complex to parse perfectly from string back to split fields without a helper
+                 // For now, let's just leave 0 or try best effort if available
+                 // Ideally, we pass split values in data attributes from PHP
+                 if (row.dataset.timeD) form.querySelector('[name="timelimit_d"]').value = row.dataset.timeD;
+                 if (row.dataset.timeH) form.querySelector('[name="timelimit_h"]').value = row.dataset.timeH;
+                 if (row.dataset.timeM) form.querySelector('[name="timelimit_m"]').value = row.dataset.timeM;
+
+                 // Data Limit
+                 if (row.dataset.limitBytesTotal) {
+                     const bytes = parseInt(row.dataset.limitBytesTotal);
+                     if (bytes > 0) {
+                         if (bytes >= 1073741824) { // GB
+                             form.querySelector('[name="datalimit_val"]').value = (bytes / 1073741824).toFixed(0); // integer prefer
+                             form.querySelector('[name="datalimit_unit"]').value = 'GB';
+                         } else { // MB
+                             form.querySelector('[name="datalimit_val"]').value = (bytes / 1048576).toFixed(0);
+                             form.querySelector('[name="datalimit_unit"]').value = 'MB';
+                         }
+                     }
+                 }
+             }
+        };
+
+        Mivo.modal.form(title, template, saveBtn, preConfirmFn, onOpenedFn, 'swal-wide');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Init Checkboxes & Table methods
+        const selectAll = document.getElementById('select-all');
+        const toolbar = document.getElementById('batch-toolbar');
+        const countSpan = document.getElementById('selected-count');
+        const tableBody = document.getElementById('table-body');
+        
+        // Init Custom Selects on Filter Bar
+        if (typeof CustomSelect !== 'undefined') {
+            document.querySelectorAll('.custom-select.form-filter').forEach(s => new CustomSelect(s));
+        }
+
         // Init Table
         const rows = document.querySelectorAll('.table-row-item');
         const manager = new TableManager(rows, 10);
         
-        // --- Toolbar Logic (Copied/Adapted) ---
-        const selectAll = document.getElementById('select-all');
-        const toolbar = document.getElementById('batch-toolbar');
-        const countSpan = document.getElementById('selected-count');
-        const tableBody = document.getElementById('table-body'); // Dynamic body
-
+        // Toolbar Logic
         function updateToolbar() {
             const checked = document.querySelectorAll('.user-checkbox:checked');
             countSpan.textContent = checked.length;
-            
-            if (checked.length > 0) {
-                toolbar.classList.remove('translate-y-20', 'opacity-0');
-            } else {
-                toolbar.classList.add('translate-y-20', 'opacity-0');
-            }
+            if (checked.length > 0) toolbar.classList.remove('translate-y-20', 'opacity-0');
+            else toolbar.classList.add('translate-y-20', 'opacity-0');
         }
 
-        selectAll.addEventListener('change', (e) => {
-            const isChecked = e.target.checked;
-            // Only select visible rows on current page
-            const visibleCheckboxes = tableBody.querySelectorAll('.user-checkbox');
-            visibleCheckboxes.forEach(cb => cb.checked = isChecked);
-            updateToolbar();
-        });
-
-        // Event Delegation for dynamic rows
-        tableBody.addEventListener('change', (e) => {
-            if (e.target.classList.contains('user-checkbox')) {
+        if(selectAll) {
+            selectAll.addEventListener('change', (e) => {
+                const isChecked = e.target.checked;
+                // Only select visible rows
+                const visibleCheckboxes = tableBody.querySelectorAll('.user-checkbox');
+                visibleCheckboxes.forEach(cb => cb.checked = isChecked);
                 updateToolbar();
-                if (!e.target.checked) selectAll.checked = false;
-            }
-        });
+            });
+        }
+
+        if(tableBody) {
+             tableBody.addEventListener('change', (e) => {
+                if (e.target.classList.contains('user-checkbox')) {
+                    updateToolbar();
+                    if (!e.target.checked) selectAll.checked = false;
+                }
+            });
+        }
     });
-    
+
     // Actions
     function printUser(id) {
-        const width = 400;
-        const height = 600;
+        const width = 400; const height = 600;
         const left = (window.innerWidth - width) / 2;
         const top = (window.innerHeight - height) / 2;
         const session = '<?= htmlspecialchars($session) ?>';
-        const url = `/${session}/hotspot/print/${encodeURIComponent(id)}`;
-        window.open(url, `PrintUser`, `width=${width},height=${height},top=${top},left=${left},scrollbars=yes`);
+        window.open(`/${session}/hotspot/print/${encodeURIComponent(id)}`, `PrintUser`, `width=${width},height=${height},top=${top},left=${left},scrollbars=yes`);
     }
     
     function printSelected() {
         const selected = Array.from(document.querySelectorAll('.user-checkbox:checked')).map(cb => cb.value);
-        if (selected.length === 0) return alert(window.i18n ? window.i18n.t('hotspot_users.no_users_selected') : "No users selected.");
+        if (selected.length === 0) return Mivo.alert('info', 'No selection', window.i18n ? window.i18n.t('hotspot_users.no_users_selected') : "No users selected.");
         
-        const width = 800;
-        const height = 600;
+        const width = 800; const height = 600;
         const left = (window.innerWidth - width) / 2;
         const top = (window.innerHeight - height) / 2;
         const session = '<?= htmlspecialchars($session) ?>';
         const ids = selected.map(id => encodeURIComponent(id)).join(',');
-        const url = `/${session}/hotspot/print-batch?ids=${ids}`;
-        window.open(url, `PrintBatch`, `width=${width},height=${height},top=${top},left=${left},scrollbars=yes`);
+        window.open(`/${session}/hotspot/print-batch?ids=${ids}`, `PrintBatch`, `width=${width},height=${height},top=${top},left=${left},scrollbars=yes`);
     }
     
     function deleteSelected() {
         const selected = Array.from(document.querySelectorAll('.user-checkbox:checked')).map(cb => cb.value);
-        if (selected.length === 0) return alert(window.i18n ? window.i18n.t('hotspot_users.no_users_selected') : "Please select at least one user.");
+        if (selected.length === 0) return Mivo.alert('info', 'No selection', window.i18n ? window.i18n.t('hotspot_users.no_users_selected') : "Please select at least one user.");
         
         const title = window.i18n ? window.i18n.t('common.delete') : 'Delete Users?';
         const msg = window.i18n ? window.i18n.t('common.confirm_delete') : `Are you sure you want to delete ${selected.length} users?`;
         
         Mivo.confirm(title, msg, window.i18n.t('common.delete'), window.i18n.t('common.cancel')).then(res => {
             if (!res) return;
-
-            // Create a form to submit
             const form = document.createElement('form');
             form.method = 'POST';
-            form.action = '/<?= htmlspecialchars($session) ?>/hotspot/delete'; // Re-uses the delete endpoint
-            
-            const sessionInput = document.createElement('input');
-            sessionInput.type = 'hidden';
-            sessionInput.name = 'session';
-            sessionInput.value = '<?= htmlspecialchars($session) ?>';
-            form.appendChild(sessionInput);
-            
+            form.action = '/<?= htmlspecialchars($session) ?>/hotspot/delete'; 
+            const sInput = document.createElement('input');
+            sInput.type = 'hidden'; sInput.name = 'session'; sInput.value = '<?= htmlspecialchars($session) ?>';
+            form.appendChild(sInput);
             const idInput = document.createElement('input');
-            idInput.type = 'hidden';
-            idInput.name = 'id';
-            idInput.value = selected.join(','); // Comma separated IDs
+            idInput.type = 'hidden'; idInput.name = 'id'; idInput.value = selected.join(',');
             form.appendChild(idInput);
-            
             document.body.appendChild(form);
             form.submit();
-            document.body.removeChild(form);
         });
     }
 </script>

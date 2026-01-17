@@ -16,13 +16,13 @@ require_once ROOT . '/app/Views/layouts/header_main.php';
     <!-- Header -->
     <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 flex-shrink-0">
         <div class="flex items-center gap-4">
-            <a href="/settings/templates" class="text-accents-5 hover:text-foreground transition-colors">
+            <a href="/settings/voucher-templates" class="text-accents-5 hover:text-foreground transition-colors">
                 <i data-lucide="arrow-left" class="w-5 h-5"></i>
             </a>
             <h1 class="text-xl font-bold tracking-tight text-foreground"><?= $title ?></h1>
         </div>
         
-        <form id="templateForm" action="<?= $isEdit ? '/settings/templates/update' : '/settings/templates/store' ?>" method="POST" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
+        <form id="templateForm" action="<?= $isEdit ? '/settings/voucher-templates/update' : '/settings/voucher-templates/store' ?>" method="POST" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
             <?php if ($isEdit): ?>
                 <input type="hidden" name="id" value="<?= $template['id'] ?>">
             <?php endif; ?>

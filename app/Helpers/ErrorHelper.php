@@ -7,21 +7,26 @@ class ErrorHelper {
     public static function show($code = 404, $message = 'Page Not Found', $description = null) {
         http_response_code($code);
         
-        // Provide default descriptions for common codes
+        // Provide default translation keys for common codes
         if ($description === null) {
             switch ($code) {
                 case 403:
-                    $description = "You do not have permission to access this resource.";
+                    $message = ($message === 'Page Not Found') ? 'errors.403_title' : $message; // Override default if simple
+                    $description = "errors.403_desc";
                     break;
                 case 500:
-                    $description = "Something went wrong on our end. Please try again later.";
+                    $message = ($message === 'Page Not Found') ? 'errors.500_title' : $message;
+                    $description = "errors.500_desc";
                     break;
                 case 503:
-                    $description = "Service Unavailable. The server is currently unable to handle the request due to maintenance or overload.";
+                    $message = ($message === 'Page Not Found') ? 'errors.503_title' : $message;
+                    $description = "errors.503_desc";
                     break;
                 case 404:
                 default:
-                    $description = "The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.";
+                    // If message is generic default, use key
+                    if ($message === 'Page Not Found') $message = 'errors.404_title';
+                    $description = "errors.404_desc";
                     break;
             }
         }

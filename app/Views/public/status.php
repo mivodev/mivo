@@ -35,7 +35,7 @@
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
                                     <i data-lucide="ticket" class="h-4 w-4 text-accents-5"></i>
                                 </div>
-                                <input type="text" id="voucher-code" class="form-input pl-10 h-11 text-lg font-mono tracking-wide" placeholder="Ex: QWASZX" required autofocus autocomplete="off">
+                                <input type="text" id="voucher-code" class="form-input pl-10 h-11 text-lg font-mono tracking-wide" placeholder="Ex: QWASZX" data-i18n="status.code_placeholder" required autofocus autocomplete="off">
                             </div>
                         </div>
                         
@@ -55,13 +55,6 @@
 
     <!-- Logic Script -->
     <script>
-        // Initialize Input placeholder
-        document.addEventListener('DOMContentLoaded', () => {
-             const inp = document.getElementById('voucher-code');
-             if(inp && window.i18n) {
-                  inp.placeholder = window.i18n.t('status.code_placeholder');
-             }
-        });
 
         async function checkStatus(e) {
             e.preventDefault();
@@ -110,7 +103,7 @@
                             <!-- Header -->
                             <div class="relative p-5 md:p-6 border-b border-white/10 flex justify-between items-center bg-white/10 dark:bg-black/20">
                                 <div>
-                                    <span class="text-[10px] text-accents-5 font-bold uppercase tracking-widest block mb-0.5">Voucher Code</span>
+                                    <span class="text-[10px] text-accents-5 font-bold uppercase tracking-widest block mb-0.5">${window.i18n.t('status.code')}</span>
                                     <span class="font-mono text-xl md:text-2xl font-black tracking-tighter text-foreground">${d.username}</span>
                                 </div>
                                 <div class="px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.15em] border ${statusColor} shadow-sm backdrop-blur-sm bg-opacity-80">
@@ -121,7 +114,7 @@
                             <!-- Data Usage Bar -->
                             <div class="relative p-5 md:p-6 pb-2">
                                 <div class="flex justify-between items-end mb-2">
-                                    <span class="text-xs font-bold text-accents-5 uppercase tracking-wide">Data Remaining</span>
+                                    <span class="text-xs font-bold text-accents-5 uppercase tracking-wide">${window.i18n.t('status.data_remaining')}</span>
                                     <span class="text-lg font-black text-blue-600 dark:text-blue-400 font-mono tracking-tight">${d.data_left}</span>
                                 </div>
                                 <div class="w-full h-2.5 bg-accents-2 rounded-full overflow-hidden shadow-inner ring-1 ring-black/5 dark:ring-white/5">
@@ -130,7 +123,7 @@
                                     </div> 
                                 </div>
                                 <div class="text-right mt-1.5">
-                                     <span class="text-[10px] font-semibold text-accents-4 uppercase tracking-wider">Used: <span class="text-foreground">${d.data_used}</span></span>
+                                     <span class="text-[10px] font-semibold text-accents-4 uppercase tracking-wider">${window.i18n.t('status.used')}: <span class="text-foreground">${d.data_used}</span></span>
                                 </div>
                             </div>
 
@@ -139,19 +132,19 @@
                                 <table class="w-full text-sm text-left">
                                     <tbody class="divide-y divide-white/10">
                                         <tr>
-                                            <td class="py-3 text-accents-5 font-bold uppercase tracking-wide text-[10px]">Package</td>
+                                            <td class="py-3 text-accents-5 font-bold uppercase tracking-wide text-[10px]">${window.i18n.t('status.package')}</td>
                                             <td class="py-3 text-right font-bold text-foreground font-mono">${d.profile}</td>
                                         </tr>
                                         <tr>
-                                            <td class="py-3 text-accents-5 font-bold uppercase tracking-wide text-[10px]">Validity</td>
+                                            <td class="py-3 text-accents-5 font-bold uppercase tracking-wide text-[10px]">${window.i18n.t('status.validity')}</td>
                                             <td class="py-3 text-right font-bold text-foreground font-mono">${d.validity}</td>
                                         </tr>
                                         <tr>
-                                            <td class="py-3 text-accents-5 font-bold uppercase tracking-wide text-[10px]">Uptime</td>
+                                            <td class="py-3 text-accents-5 font-bold uppercase tracking-wide text-[10px]">${window.i18n.t('status.uptime')}</td>
                                             <td class="py-3 text-right font-medium text-foreground font-mono">${d.uptime_used}</td>
                                         </tr>
                                         <tr>
-                                            <td class="py-3 text-accents-5 font-bold uppercase tracking-wide text-[10px]">Expires</td>
+                                            <td class="py-3 text-accents-5 font-bold uppercase tracking-wide text-[10px]">${window.i18n.t('status.expires')}</td>
                                             <td class="py-3 text-right font-medium text-foreground font-mono">${d.expiration}</td>
                                         </tr>
                                     </tbody>
@@ -160,44 +153,32 @@
                         </div>
                     `;
 
-                    Swal.fire({
-                        title: 'Voucher Details',
-                        html: htmlContent,
-                        icon: 'success', // Using success icon for positive result
-                        confirmButtonText: 'OK',
-                        customClass: {
-                            popup: 'swal2-premium-card w-full max-w-md', // Ensure good width
-                            confirmButton: 'btn btn-primary w-full',
-                        },
-                        buttonsStyling: false
+                    Mivo.alert('success', window.i18n.t('status.details_title'), htmlContent, {
+                        customClass: { popup: 'w-full max-w-md' } // Override width only, others merged
                     });
 
                 } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Voucher Not Found',
-                        text: json.message || "The voucher code you entered does not exist.",
-                        confirmButtonText: 'Try Again',
-                        customClass: {
-                            popup: 'swal2-premium-card',
-                            confirmButton: 'btn btn-primary',
-                        },
-                        buttonsStyling: false,
-                        didClose: () => {
-                             setTimeout(() => {
-                                 const el = document.getElementById('voucher-code');
-                                 if(el) { el.focus(); el.select(); }
-                             }, 100);
+                    Mivo.alert('error', 
+                        window.i18n.t('status.not_found_title'), 
+                        json.message && json.message !== 'Voucher Not Found' ? json.message : window.i18n.t('status.not_found_desc'),
+                        {
+                            confirmButtonText: window.i18n.t('status.try_again'),
+                            didClose: () => {
+                                 setTimeout(() => {
+                                     const el = document.getElementById('voucher-code');
+                                     if(el) { el.focus(); el.select(); }
+                                 }, 100);
+                            }
                         }
-                    });
+                    );
                 }
 
             } catch (err) {
                 console.error(err);
                 Swal.fire({
                     icon: 'error',
-                    title: 'System Error',
-                    text: 'Unable to connect to the server.',
+                    title: window.i18n.t('errors.500_title'),
+                    text: window.i18n.t('errors.500_desc'),
                     confirmButtonText: 'Close',
                     customClass: {
                         popup: 'swal2-premium-card',

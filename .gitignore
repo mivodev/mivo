@@ -17,6 +17,7 @@ Thumbs.db
 # Build Artifacts & Deployments
 /deploy_package.tar.gz
 /mivo_backup_*.mivo
+/mivo-*.zip
 
 # Secrets and Environment
 .env
@@ -27,4 +28,8 @@ docs/.vitepress/cache
 
 # Build Scripts & Artifacts
 build_release.ps1
-*.zip
+deploy.ps1
+
+# User Uploads
+/public/uploads/*
+!/public/uploads/.gitignore
