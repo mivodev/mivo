@@ -397,7 +397,7 @@ $getInitials = function($name) {
             </a>
 
             <!-- Community -->
-            <a href="https://github.com/mivodev/mivo/issues" target="_blank" class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors text-accents-6 hover:text-foreground hover:bg-white/5">
+            <a href="https://github.com/mivodev/mivo/discussions" target="_blank" class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors text-accents-6 hover:text-foreground hover:bg-white/5">
                  <i data-lucide="message-circle" class="w-4 h-4"></i>
                  <span data-i18n="sidebar.community">Community</span>
                  <i data-lucide="external-link" class="w-3 h-3 ml-auto opacity-50"></i>

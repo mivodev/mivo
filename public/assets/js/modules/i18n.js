@@ -19,10 +19,12 @@ class I18n {
         this.isLoaded = true;
     }
 
-    async loadLanguage(lang) {
+    async loadLanguage(lang, customUrl = null) {
         try {
             const cacheBuster = Date.now();
-            const response = await fetch(`/lang/${lang}.json?v=${cacheBuster}`);
+            // Use custom URL if provided, otherwise default to public/lang structure
+            const url = customUrl || `/lang/${lang}.json`;
+            const response = await fetch(`${url}?v=${cacheBuster}`);
             if (!response.ok) throw new Error(`Failed to load language: ${lang}`);
             
             this.translations = await response.json();

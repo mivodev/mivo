@@ -4,7 +4,7 @@
                 <i data-lucide="book-open" class="w-4 h-4"></i>
                 <span>Docs</span>
             </a>
-            <a href="https://github.com/mivodev/mivo/issues" target="_blank" class="hover:text-foreground transition-colors flex items-center gap-2">
+            <a href="https://github.com/mivodev/mivo/discussions" target="_blank" class="hover:text-foreground transition-colors flex items-center gap-2">
                 <i data-lucide="message-circle" class="w-4 h-4"></i>
                 <span>Community</span>
             </a>

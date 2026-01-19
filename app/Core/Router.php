@@ -97,10 +97,16 @@ class Router {
 
         $path = parse_url($uri, PHP_URL_PATH);
         
-        // Handle subdirectory
-        $scriptName = dirname($_SERVER['SCRIPT_NAME']);
-        if (strpos($path, $scriptName) === 0) {
-            $path = substr($path, strlen($scriptName));
+        // Handle subdirectory (SKIP for PHP Built-in Server to avoid SCRIPT_NAME issues)
+        if (php_sapi_name() !== 'cli-server') {
+            $scriptName = dirname($_SERVER['SCRIPT_NAME']);
+            // Normalize backslashes (Windows)
+            $scriptName = str_replace('\\', '/', $scriptName);
+            
+            // Ensure we don't strip root slash
+            if ($scriptName !== '/' && strpos($path, $scriptName) === 0) {
+                $path = substr($path, strlen($scriptName));
+            }
         }
         $path = $this->normalizePath($path);
 

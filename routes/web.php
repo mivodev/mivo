@@ -39,6 +39,10 @@ $router->group(['middleware' => 'router.valid'], function($router) {
 // Temporary Test Route
 $router->get('/test-alert', [HomeController::class, 'testAlert']);
 
+// Plugin Language Route - DEPRECATED
+// Plugins now handle their own routing via Hooks::addAction('router_init')
+
+
 
 // -----------------------------------------------------------------------------
 // Protected Admin Routes (Requires Auth)

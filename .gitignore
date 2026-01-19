@@ -33,3 +33,4 @@ deploy.ps1
 
 # Plugins
 /plugins/*
+!/plugins/.gitkeep

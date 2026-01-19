@@ -53,8 +53,9 @@ $uri = $_SERVER['REQUEST_URI'] ?? '/';
                             <?php 
                             $languages = \App\Helpers\LanguageHelper::getAvailableLanguages();
                             foreach ($languages as $lang): 
+                                $pathArg = isset($lang['path']) ? "', '" . $lang['path'] : "";
                             ?>
-                            <button onclick="Mivo.modules.I18n.loadLanguage('<?= $lang['code'] ?>')" class="w-full text-left flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-accents-1 transition-colors text-accents-6 hover:text-foreground group/lang">
+                            <button onclick="Mivo.modules.I18n.loadLanguage('<?= $lang['code'] ?><?= $pathArg ?>')" class="w-full text-left flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-accents-1 transition-colors text-accents-6 hover:text-foreground group/lang">
                                 <span class="fi fi-<?= $lang['flag'] ?> rounded-sm shadow-sm transition-transform group-hover/lang:scale-110"></span>
                                 <span><?= $lang['name'] ?></span>
                             </button>
@@ -123,8 +124,10 @@ $uri = $_SERVER['REQUEST_URI'] ?? '/';
                     <span class="text-xs font-bold text-accents-4 uppercase tracking-wider">Select Language</span>
                 </div>
                 <div class="flex items-center gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide snap-x">
-                    <?php foreach ($languages as $lang): ?>
-                    <button onclick="changeLanguage('<?= $lang['code'] ?>')" class="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-full border border-accents-2 bg-background hover:border-foreground transition-all text-sm font-medium snap-start shadow-sm">
+                    <?php foreach ($languages as $lang): 
+                        $pathArg = isset($lang['path']) ? "', '" . $lang['path'] : "";
+                    ?>
+                    <button onclick="changeLanguage('<?= $lang['code'] ?><?= $pathArg ?>')" class="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-full border border-accents-2 bg-background hover:border-foreground transition-all text-sm font-medium snap-start shadow-sm">
                         <span class="fi fi-<?= $lang['flag'] ?> rounded-full shadow-sm"></span>
                         <span class="whitespace-nowrap"><?= $lang['name'] ?></span>
                     </button>

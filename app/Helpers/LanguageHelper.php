@@ -40,6 +40,6 @@ class LanguageHelper
             }
         }
 
-        return $languages;
+        return \App\Core\Hooks::applyFilters('get_available_languages', $languages);
     }
 }
