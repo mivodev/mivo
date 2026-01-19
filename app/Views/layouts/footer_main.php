@@ -31,6 +31,10 @@
     <?php endif; ?>
 
     <script>
+        window.MIVO_VERSION = "<?= \App\Config\SiteConfig::APP_VERSION ?>";
+    </script>
+    <script src="/assets/js/modules/update-checker.js"></script>
+    <script>
         // Global Theme Toggle Logic (Class-based for multiple instances)
         document.addEventListener('DOMContentLoaded', () => {
             const toggleButtons = document.querySelectorAll('.theme-toggle');

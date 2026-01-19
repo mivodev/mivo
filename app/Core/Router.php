@@ -28,6 +28,34 @@ class Router {
     }
 
     /**
+     * Add a OPTIONS route (Crucial for CORS Preflight)
+     */
+    public function options($path, $callback) {
+        return $this->addRoute('OPTIONS', $path, $callback);
+    }
+
+    /**
+     * Add a PUT route
+     */
+    public function put($path, $callback) {
+        return $this->addRoute('PUT', $path, $callback);
+    }
+
+    /**
+     * Add a PATCH route
+     */
+    public function patch($path, $callback) {
+        return $this->addRoute('PATCH', $path, $callback);
+    }
+
+    /**
+     * Add a DELETE route
+     */
+    public function delete($path, $callback) {
+        return $this->addRoute('DELETE', $path, $callback);
+    }
+
+    /**
      * Add route to collection and return $this for chaining
      */
     protected function addRoute($method, $path, $callback) {

@@ -3,7 +3,7 @@ namespace App\Config;
 
 class SiteConfig {
     const APP_NAME = 'MIVO';
-    const APP_VERSION = 'v1.2.2';
+    const APP_VERSION = 'v1.2.3';
     const APP_FULL_NAME = 'MIVO - Mikrotik Voucher';
     const CREDIT_NAME = 'MivoDev';
     const CREDIT_URL = 'https://github.com/mivodev';

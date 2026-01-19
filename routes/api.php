@@ -15,5 +15,6 @@ $router->group(['middleware' => 'cors'], function($router) {
     // Voucher Check (Code/Username in URL) - Support GET (Status Page) and POST (Login Page Check)
     $router->post('/api/voucher/check/{code}', [App\Controllers\PublicStatusController::class, 'check']);
     $router->get('/api/voucher/check/{code}', [App\Controllers\PublicStatusController::class, 'check']);
+    $router->options('/api/voucher/check/{code}', function() { return; }); // CORS Middleware handles this
 
 });
