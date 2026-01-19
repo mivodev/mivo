@@ -87,24 +87,31 @@ class PublicStatusController extends Controller {
         if (!empty($user)) {
             $u = $user[0];
             
-            // --- SECURITY CHECK: Hide Unused Vouchers ---
+            // --- SECURITY CHECK: Hide Unused Vouchers (UNLESS ACTIVE) ---
             $uptimeRaw = $u['uptime'] ?? '0s';
             $bytesIn = intval($u['bytes-in'] ?? 0);
             $bytesOut = intval($u['bytes-out'] ?? 0);
             
-            if (($uptimeRaw === '0s' || empty($uptimeRaw)) && ($bytesIn + $bytesOut) === 0) {
+            // Check if active first
+            $active = $api->comm("/ip/hotspot/active/print", [
+                "?user" => $code
+            ]);
+            $isActive = !empty($active);
+
+            // If Empty Stats AND Not Active => Hide (It's an unused new voucher)
+            // If Empty Stats BUT Active => Show! (It's a fresh session)
+            if (!$isActive && ($uptimeRaw === '0s' || empty($uptimeRaw)) && ($bytesIn + $bytesOut) === 0) {
                  $api->disconnect();
                  echo json_encode(['success' => false, 'message' => 'Voucher Not Found']); 
                  return;
             }
 
-            // --- SECURITY CHECK: Hide Unlimited Members ---
+            // --- SECURITY CHECK: Hide Unlimited Members (UNLESS ACTIVE) ---
             $limitBytes = isset($u['limit-bytes-total']) ? intval($u['limit-bytes-total']) : 0;
             $limitUptime = $u['limit-uptime'] ?? '0s';
 
-            if ($limitBytes === 0 && ($limitUptime === '0s' || empty($limitUptime))) {
-                 // Option: Allow checking them but show minimalistic info, or hide. 
-                 // Sticking to original logic: Hide them.
+            if (!$isActive && $limitBytes === 0 && ($limitUptime === '0s' || empty($limitUptime))) {
+                 // Hide unlimited members if they are offline to prevent enumeration
                  $api->disconnect();
                  echo json_encode(['success' => false, 'message' => 'Voucher Not Found']); 
                  return;
@@ -173,11 +180,9 @@ class PublicStatusController extends Controller {
             // 2. CHECK ACTIVE OVERRIDE
             // If user is conceptually valid (or even if limited?), check if they are currently active
             // Because they might be active BUT expiring soon, or active BUT over quota (if server hasn't kicked them yet)
-            $active = $api->comm("/ip/hotspot/active/print", [
-                "?user" => $code
-            ]);
-
-            if (!empty($active)) {
+            // $active already fetched above in Security Check
+            
+            if ($isActive) {
                 $status = 'active';
                 $statusLabel = 'Active (Online)';
             }

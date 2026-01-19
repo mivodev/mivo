@@ -11,6 +11,7 @@ $router->group(['middleware' => 'cors'], function($router) {
 
     // Public Status API (No Auth Check in Controller)
     $router->post('/api/status/check', [App\Controllers\PublicStatusController::class, 'check']);
+    $router->options('/api/status/check', function() { return; });
 
     // Voucher Check (Code/Username in URL) - Support GET (Status Page) and POST (Login Page Check)
     $router->post('/api/voucher/check/{code}', [App\Controllers\PublicStatusController::class, 'check']);
