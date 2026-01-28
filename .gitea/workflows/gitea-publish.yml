@@ -16,6 +16,9 @@ jobs:
       packages: write
       contents: read
     steps:
+      - name: Debug Actions Token
+        run: |
+          curl -v -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" https://git.dyzulk.com/api/v1/user/packages
       - name: Checkout repository
         uses: actions/checkout@v4
 
