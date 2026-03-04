@@ -7,7 +7,6 @@
 /.gitattributes export-ignore
 /.gitignore export-ignore
 /.dockerignore export-ignore
-/.env.example export-ignore
 /package.json export-ignore
 /package-lock.json export-ignore
 /tailwind.config.js export-ignore
