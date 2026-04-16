@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Diskusi Umum
+    url: https://github.com/mivodev/mivo/discussions
+    about: Gunakan Discussions untuk pertanyaan umum
