@@ -52,6 +52,6 @@ body:
     id: environment
     attributes:
       label: Environment
-      placeholder: Contoh: Chrome 120, Windows 11, Node 18
+      placeholder: "Contoh: Chrome 120, Windows 11, Node 18"
     validations:
       required: false
