@@ -1,0 +1,28 @@
+name: Feature Request
+description: Usulan fitur baru
+title: "[FEATURE] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Masalah yang Ingin Diselesaikan
+      placeholder: Jelaskan kebutuhan atau masalah
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Solusi yang Diusulkan
+      placeholder: Jelaskan solusi yang Anda inginkan
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatif
+      placeholder: Alternatif lain yang pernah dipertimbangkan
+    validations:
+      required: false
