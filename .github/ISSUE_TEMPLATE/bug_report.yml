@@ -1,0 +1,57 @@
+name: Bug Report
+description: Laporkan bug atau error pada sistem
+title: "[BUG] "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Deskripsi Masalah
+      description: Jelaskan bug yang terjadi secara jelas dan ringkas
+      placeholder: Apa yang terjadi?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Langkah Reproduksi
+      description: Langkah-langkah untuk memunculkan bug
+      placeholder: |
+        1. Buka halaman...
+        2. Klik tombol...
+        3. Terjadi error...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Hasil yang Diharapkan
+      placeholder: Apa yang seharusnya terjadi?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Hasil yang Terjadi
+      placeholder: Apa yang sebenarnya terjadi?
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log / Screenshot
+      description: Sertakan error log atau screenshot jika ada
+    validations:
+      required: false
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: Contoh: Chrome 120, Windows 11, Node 18
+    validations:
+      required: false
