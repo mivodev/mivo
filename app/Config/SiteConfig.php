@@ -6,7 +6,7 @@ class SiteConfig
 {
     const APP_NAME = 'MIVO';
 
-    const APP_VERSION = 'v1.2.3';
+    const APP_VERSION = 'v1.2.5';
 
     const APP_FULL_NAME = 'MIVO - Mikrotik Voucher';
 
